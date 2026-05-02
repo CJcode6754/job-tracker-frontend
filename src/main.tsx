@@ -1,10 +1,18 @@
-import { StrictMode } from 'react'
-import { createRoot } from 'react-dom/client'
-import './index.css'
-import App from './App.tsx'
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import { RouterProvider } from 'react-router-dom';
+import { router } from './router';
+import { useAuthStore } from './store/useAuthStore';
+import { Toaster } from 'sonner';
+import AiChatbot from '@/components/ai/AiChatbot';
+import './index.css';
 
-createRoot(document.getElementById('root')!).render(
-  <StrictMode>
-    <App />
-  </StrictMode>,
-)
+useAuthStore.getState().fetchUser().then(() => {
+  ReactDOM.createRoot(document.getElementById('root')!).render(
+    <React.StrictMode>
+      <RouterProvider router={router} />
+      <AiChatbot />
+      <Toaster position="top-right" richColors />
+    </React.StrictMode>
+  );
+});
