@@ -42,7 +42,7 @@ export default function Dashboard() {
   return (
     <div className="min-h-screen bg-base-200">
       <Navbar />
-      <div className="max-w-4xl mx-auto px-5 py-8 space-y-5">
+      <div className="max-w-4xl mx-auto px-4 sm:px-5 py-5 sm:py-8 space-y-5">
 
         <div>
           <h1 className="text-xl font-bold">Dashboard</h1>
@@ -50,7 +50,7 @@ export default function Dashboard() {
         </div>
 
         {/* Stat cards */}
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           {[
             { label: 'Total',  value: stats.total,  cls: 'text-base-content' },
             { label: 'Active', value: stats.active, cls: 'text-primary' },

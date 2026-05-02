@@ -12,16 +12,17 @@ export default function Board() {
       <Navbar />
 
       {/* Toolbar */}
-      <div className="flex items-center justify-between px-5 py-2.5 bg-base-100 border-b border-base-200 shrink-0">
+      <div className="flex items-center justify-between px-4 py-2.5 bg-base-100 border-b border-base-200 shrink-0">
         <div>
           <p className="text-sm font-semibold">Applications</p>
-          <p className="text-xs text-base-content/50 mt-0.5">Drag cards to update status</p>
+          <p className="text-xs text-base-content/50 mt-0.5 hidden sm:block">Drag cards to update status</p>
         </div>
         <button onClick={() => setShowForm(true)} className="btn btn-primary btn-sm gap-1.5">
           <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
           </svg>
-          Add Application
+          <span className="hidden sm:inline">Add Application</span>
+          <span className="sm:hidden">Add</span>
         </button>
       </div>
 
@@ -31,14 +32,12 @@ export default function Board() {
       {/* Modal */}
       {showForm && (
         <div className="modal modal-open">
-          <div className="modal-box w-full max-w-lg p-0 max-h-[90vh] flex flex-col">
-            <div className="flex items-center justify-between px-5 py-4 border-b border-base-200 shrink-0">
+          <div className="modal-box w-full max-w-lg p-0 max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between px-5 py-4 border-b border-base-200 sticky top-0 bg-base-100 z-10">
               <h3 className="font-semibold text-sm">New Application</h3>
               <button onClick={() => setShowForm(false)} className="btn btn-ghost btn-xs btn-circle">✕</button>
             </div>
-            <div className="overflow-y-auto flex-1">
-              <ApplicationForm onClose={() => setShowForm(false)} />
-            </div>
+            <ApplicationForm onClose={() => setShowForm(false)} />
           </div>
           <div className="modal-backdrop" onClick={() => setShowForm(false)} />
         </div>

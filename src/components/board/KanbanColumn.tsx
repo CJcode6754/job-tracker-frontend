@@ -22,7 +22,7 @@ export default function KanbanColumn({ status, label, applications, isDragging }
   const { setNodeRef, isOver } = useDroppable({ id: status });
 
   return (
-    <div className="flex flex-col w-64 shrink-0">
+    <div className="flex flex-col w-56 sm:w-64 shrink-0">
       {/* Header */}
       <div className="flex items-center justify-between px-1 pb-2">
         <div className="flex items-center gap-2">

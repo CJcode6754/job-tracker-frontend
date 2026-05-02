@@ -18,42 +18,30 @@ export default function Navbar() {
     ? user.name.split(' ').map((n) => n[0]).join('').toUpperCase().slice(0, 2)
     : '?';
 
+  const navLinkClass = ({ isActive }: { isActive: boolean }) =>
+    `btn btn-ghost btn-sm text-sm ${isActive ? 'bg-primary/10 text-primary font-semibold' : 'text-base-content/60'}`;
+
   return (
-    <div className="navbar bg-base-100 border-b border-base-200 min-h-[52px] px-4 shrink-0">
-      {/* Brand + nav links */}
-      <div className="navbar-start gap-3">
+    <div className="navbar bg-base-100 border-b border-base-200 min-h-[52px] px-3 sm:px-4 shrink-0">
+      {/* Brand */}
+      <div className="navbar-start gap-2 sm:gap-3">
         <div className="flex items-center gap-2">
           <div className="w-6 h-6 rounded-lg bg-primary flex items-center justify-center shrink-0">
             <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="white" strokeWidth={2.5}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
             </svg>
           </div>
-          <span className="font-semibold text-sm tracking-tight">JobTracker</span>
+          <span className="font-semibold text-sm tracking-tight hidden xs:block sm:block">JobTracker</span>
         </div>
 
-        <div className="flex items-center gap-1">
-          <NavLink
-            to="/"
-            end
-            className={({ isActive }) =>
-              `btn btn-ghost btn-sm text-sm ${isActive ? 'bg-primary/10 text-primary font-semibold' : 'text-base-content/60'}`
-            }
-          >
-            Board
-          </NavLink>
-          <NavLink
-            to="/dashboard"
-            className={({ isActive }) =>
-              `btn btn-ghost btn-sm text-sm ${isActive ? 'bg-primary/10 text-primary font-semibold' : 'text-base-content/60'}`
-            }
-          >
-            Dashboard
-          </NavLink>
+        <div className="flex items-center gap-0.5">
+          <NavLink to="/" end className={navLinkClass}>Board</NavLink>
+          <NavLink to="/dashboard" className={navLinkClass}>Dashboard</NavLink>
         </div>
       </div>
 
       {/* Right side */}
-      <div className="navbar-end gap-2">
+      <div className="navbar-end gap-1 sm:gap-2">
         {/* Theme picker */}
         <div className="dropdown dropdown-end">
           <button tabIndex={0} className="btn btn-ghost btn-sm btn-circle" title="Change theme">
@@ -80,19 +68,31 @@ export default function Navbar() {
           </ul>
         </div>
 
-        <div className="w-px h-5 bg-base-200 mx-1" />
+        <div className="w-px h-5 bg-base-200 mx-0.5 hidden sm:block" />
 
-        {/* Avatar + name + logout */}
+        {/* Avatar + name */}
         <div className="flex items-center gap-2">
           <div className="w-7 h-7 rounded-full bg-primary/10 text-primary flex items-center justify-center text-xs font-semibold shrink-0">
             {initials}
           </div>
-          <span className="text-sm text-base-content/70 hidden sm:block">{user?.name}</span>
+          <span className="text-sm text-base-content/70 hidden md:block">{user?.name}</span>
         </div>
 
-        <button onClick={handleLogout} className="btn btn-ghost btn-sm text-error hover:bg-error/10">
+        <button onClick={handleLogout} className="btn btn-ghost btn-sm text-error hover:bg-error/10 hidden sm:flex">
           Logout
         </button>
+
+        {/* Mobile logout in dropdown */}
+        <div className="dropdown dropdown-end sm:hidden">
+          <button tabIndex={0} className="btn btn-ghost btn-sm btn-circle">
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          </button>
+          <ul tabIndex={0} className="dropdown-content menu p-2 shadow-lg bg-base-100 border border-base-200 rounded-box w-40 z-50">
+            <li><button onClick={handleLogout} className="text-error text-sm">Logout</button></li>
+          </ul>
+        </div>
       </div>
     </div>
   );
