@@ -8,6 +8,9 @@ export type ApplicationStatus =
 
 export type Priority = 'low' | 'medium' | 'high';
 
+export type WorkType = 'remote' | 'onsite' | 'hybrid';
+export type EmploymentType = 'full_time' | 'part_time' | 'contract' | 'internship' | 'freelance';
+
 export interface Contact {
     id: number;
     application_id: number;
@@ -40,7 +43,10 @@ export interface JobApplication {
   salary_min?: number;
   salary_max?: number;
   salary_currency?: string;
-  notes: string;
+  location?: string;
+  work_type?: WorkType;
+  employment_type?: EmploymentType;
+  notes?: string;
   contacts: Contact[];
   interview_rounds: InterviewRound[];
   interview_rounds_count?: number; // returned by index, avoids loading full relation
@@ -62,6 +68,8 @@ export interface ChatMessage {
 
 export interface JobTags {
   role_title: string;
+  company: string | null;
+  location: string | null;
   seniority: string;
   employment_type: string;
   remote_policy: string;

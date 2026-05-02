@@ -3,7 +3,6 @@ import { useParams, useNavigate } from 'react-router-dom';
 import api from '@/lib/axios';
 import type { JobApplication } from '@/types';
 import { useApplicationStore } from '@/store/useApplicationStore';
-import CoverLetterGenerator from '@/components/ai/CoverLetterGenerator';
 import Navbar from '@/components/layout/Navbar';
 import { toast } from 'sonner';
 
@@ -70,12 +69,6 @@ export default function ApplicationDetail() {
           </div>
         </div>
 
-        {/* Cover Letter */}
-        <CoverLetterGenerator
-          company={application.company}
-          role={application.role}
-          notes={application.notes}
-        />
       </div>
     </div>
   );

@@ -31,12 +31,12 @@ export default function Board() {
       {/* Modal */}
       {showForm && (
         <div className="modal modal-open">
-          <div className="modal-box w-full max-w-lg p-0">
-            <div className="flex items-center justify-between px-5 py-4 border-b border-base-200">
+          <div className="modal-box w-full max-w-lg p-0 max-h-[90vh] flex flex-col">
+            <div className="flex items-center justify-between px-5 py-4 border-b border-base-200 shrink-0">
               <h3 className="font-semibold text-sm">New Application</h3>
               <button onClick={() => setShowForm(false)} className="btn btn-ghost btn-xs btn-circle">✕</button>
             </div>
-            <div className="p-5">
+            <div className="overflow-y-auto flex-1">
               <ApplicationForm onClose={() => setShowForm(false)} />
             </div>
           </div>
