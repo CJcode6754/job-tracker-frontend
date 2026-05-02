@@ -43,6 +43,7 @@ export interface JobApplication {
   notes: string;
   contacts: Contact[];
   interview_rounds: InterviewRound[];
+  interview_rounds_count?: number; // returned by index, avoids loading full relation
   created_at: string;
   updated_at: string;
 }

@@ -1,4 +1,5 @@
 import Papa from 'papaparse';
+import type { ApplicationStatus, Priority } from '@/types';
 import { useApplicationStore } from '@/store/useApplicationStore';
 import { toast } from 'sonner';
 
@@ -13,8 +14,8 @@ export function useImport() {
           await addApplication({
             company:      row['Company'],
             role:         row['Role'],
-            status:       (row['Status'] as any) || 'wishlist',
-            priority:     (row['Priority'] as any) || 'medium',
+            status:       (row['Status'] as ApplicationStatus) || 'wishlist',
+            priority:     (row['Priority'] as Priority) || 'medium',
             applied_date: row['Applied Date'] || undefined,
             job_url:      row['Job URL'] || undefined,
             notes:        row['Notes'] || '',

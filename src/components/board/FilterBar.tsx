@@ -1,14 +1,6 @@
 import { useState, useCallback } from 'react';
 import { useApplicationStore } from '@/store/useApplicationStore';
 
-function debounce<T extends (...args: any[]) => any>(fn: T, delay: number) {
-  let timer: ReturnType<typeof setTimeout>;
-  return (...args: Parameters<T>) => {
-    clearTimeout(timer);
-    timer = setTimeout(() => fn(...args), delay);
-  };
-}
-
 export default function FilterBar() {
   const { fetchApplications } = useApplicationStore();
   const [search, setSearch]     = useState('');
@@ -16,42 +8,47 @@ export default function FilterBar() {
   const [priority, setPriority] = useState('all');
 
   const applyFilters = useCallback(
-    debounce((s: string, st: string, p: string) => {
-      fetchApplications({ search: s, status: st, priority: p });
-    }, 400),
-    []
+    (s: string, st: string, p: string) => {
+      const timer = setTimeout(() => {
+        fetchApplications({ search: s, status: st, priority: p });
+      }, 400);
+      return () => clearTimeout(timer);
+    },
+    [fetchApplications]
   );
 
-  const handleSearch = (value: string) => {
-    setSearch(value);
-    applyFilters(value, status, priority);
-  };
-
   return (
-    <div className="flex gap-3 p-4 bg-white border-b">
-      <input
-        type="text"
-        placeholder="Search company or role..."
-        value={search}
-        onChange={(e) => handleSearch(e.target.value)}
-        className="border rounded-lg px-3 py-2 text-sm flex-1"
-      />
+    <div className="flex items-center gap-2 px-5 py-2 bg-base-100 border-b border-base-200">
+      <label className="input input-sm flex items-center gap-2 flex-1 max-w-xs">
+        <svg className="w-3.5 h-3.5 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.35-4.35M17 11A6 6 0 115 11a6 6 0 0112 0z" />
+        </svg>
+        <input
+          type="text"
+          placeholder="Search company or role..."
+          value={search}
+          onChange={(e) => { setSearch(e.target.value); applyFilters(e.target.value, status, priority); }}
+          className="grow"
+        />
+      </label>
+
       <select
+        className="select select-sm"
         value={status}
         onChange={(e) => { setStatus(e.target.value); applyFilters(search, e.target.value, priority); }}
-        className="border rounded-lg px-3 py-2 text-sm"
       >
-        <option value="all">All Statuses</option>
-        {['wishlist','applied','phone_screen','interview','offer','rejected'].map(s =>
-          <option key={s} value={s}>{s.replace('_', ' ')}</option>
-        )}
+        <option value="all">All statuses</option>
+        {['wishlist', 'applied', 'phone_screen', 'interview', 'offer', 'rejected'].map((s) => (
+          <option key={s} value={s}>{s.replace('_', ' ').replace(/\b\w/g, (c) => c.toUpperCase())}</option>
+        ))}
       </select>
+
       <select
+        className="select select-sm"
         value={priority}
         onChange={(e) => { setPriority(e.target.value); applyFilters(search, status, e.target.value); }}
-        className="border rounded-lg px-3 py-2 text-sm"
       >
-        <option value="all">All Priorities</option>
+        <option value="all">All priorities</option>
         <option value="high">High</option>
         <option value="medium">Medium</option>
         <option value="low">Low</option>

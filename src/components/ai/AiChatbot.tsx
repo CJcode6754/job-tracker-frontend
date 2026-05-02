@@ -8,7 +8,7 @@ function MessageBubble({ message }: { message: ChatMessage }) {
   return (
     <div className={`flex ${isUser ? 'justify-end' : 'justify-start'} mb-3`}>
       {!isUser && (
-        <div className="w-7 h-7 rounded-full bg-indigo-600 flex items-center justify-center text-white text-xs mr-2 flex-shrink-0 mt-1">
+        <div className="w-7 h-7 rounded-full bg-indigo-600 flex items-center justify-center text-white text-xs mr-2 shrink-0 mt-1">
           AI
         </div>
       )}
@@ -26,7 +26,7 @@ function MessageBubble({ message }: { message: ChatMessage }) {
 function TypingIndicator() {
   return (
     <div className="flex justify-start mb-3">
-      <div className="w-7 h-7 rounded-full bg-indigo-600 flex items-center justify-center text-white text-xs mr-2 flex-shrink-0">
+      <div className="w-7 h-7 rounded-full bg-indigo-600 flex items-center justify-center text-white text-xs mr-2 shrink-0">
         AI
       </div>
       <div className="bg-gray-100 rounded-2xl rounded-bl-sm px-4 py-3">
@@ -89,7 +89,7 @@ export default function AiChatbot() {
 
       {/* Chat window */}
       {isOpen && (
-        <div className="fixed bottom-24 right-6 w-96 h-[560px] bg-white rounded-2xl shadow-2xl flex flex-col border border-gray-200 z-50">
+        <div className="fixed bottom-24 right-6 w-96 h-140 bg-white rounded-2xl shadow-2xl flex flex-col border border-gray-200 z-50">
           {/* Header */}
           <div className="flex items-center justify-between px-4 py-3 border-b bg-indigo-600 rounded-t-2xl">
             <div>

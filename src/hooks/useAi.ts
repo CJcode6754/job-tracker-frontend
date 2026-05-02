@@ -30,8 +30,9 @@ export function useAiChat() {
 
       const { data } = await api.post('/ai/chat', { message: text, history });
       setMessages((prev) => [...prev, { role: 'model', text: data.reply }]);
-    } catch (err: any) {
-      const msg = err?.response?.status === 429
+    } catch (err: unknown) {
+      const status = (err as { response?: { status?: number } })?.response?.status;
+      const msg = status === 429
         ? 'Rate limit reached. Please wait a moment.'
         : 'AI is unavailable right now. Try again.';
       toast.error(msg);

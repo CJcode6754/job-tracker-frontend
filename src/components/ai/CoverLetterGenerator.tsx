@@ -17,9 +17,9 @@ export default function CoverLetterGenerator({ company, role, notes }: Props) {
   const handleGenerate = () => generate({
     company,
     role,
-    job_description:  jd,
+    job_description: jd || undefined,
     notes,
-    user_background:  bg,
+    user_background: bg || undefined,
   });
 
   const copyToClipboard = () => {
@@ -28,68 +28,60 @@ export default function CoverLetterGenerator({ company, role, notes }: Props) {
   };
 
   return (
-    <div className="border rounded-xl p-4 space-y-3">
-      <div className="flex items-center justify-between">
-        <h3 className="font-semibold text-sm">✍️ AI Cover Letter</h3>
-        <button
-          onClick={() => setIsOpen((o) => !o)}
-          className="text-xs text-indigo-600 hover:underline"
-        >
-          {isOpen ? 'Hide' : 'Generate'}
-        </button>
-      </div>
-
-      {isOpen && (
-        <div className="space-y-3">
+    <div className="card bg-base-100 border border-base-200 shadow-sm">
+      <div className="card-body p-5">
+        <div className="flex items-center justify-between">
           <div>
-            <label className="block text-xs font-medium text-gray-600 mb-1">
-              Job Description (paste for better results)
-            </label>
-            <textarea
-              value={jd}
-              onChange={(e) => setJd(e.target.value)}
-              rows={4}
-              placeholder="Paste the job description here..."
-              className="w-full border rounded-lg px-3 py-2 text-sm"
-            />
+            <h2 className="text-sm font-semibold">AI Cover Letter</h2>
+            <p className="text-xs text-base-content/50 mt-0.5">Generate a tailored cover letter</p>
           </div>
-
-          <div>
-            <label className="block text-xs font-medium text-gray-600 mb-1">
-              Your Background / Key Skills
-            </label>
-            <textarea
-              value={bg}
-              onChange={(e) => setBg(e.target.value)}
-              rows={2}
-              placeholder="e.g. 3 years Laravel, React, led a team of 4..."
-              className="w-full border rounded-lg px-3 py-2 text-sm"
-            />
-          </div>
-
-          <button
-            onClick={handleGenerate}
-            disabled={loading}
-            className="w-full bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white text-sm rounded-lg py-2 font-medium transition-colors"
-          >
-            {loading ? '✨ Generating...' : '✨ Generate Cover Letter'}
+          <button onClick={() => setIsOpen((o) => !o)} className="btn btn-ghost btn-sm">
+            {isOpen ? 'Hide' : 'Generate'}
           </button>
-
-          {letter && (
-            <div className="space-y-2">
-              <div className="bg-gray-50 border rounded-lg p-4 text-sm text-gray-700 whitespace-pre-wrap leading-relaxed">
-                {letter}
-              </div>
-              <button
-                onClick={copyToClipboard}
-                className="w-full border border-indigo-300 text-indigo-600 hover:bg-indigo-50 text-sm rounded-lg py-2 transition-colors"
-              >
-                📋 Copy to Clipboard
-              </button>
-            </div>
-          )}
         </div>
-      )}
+
+        {isOpen && (
+          <div className="space-y-3 mt-3">
+            <fieldset className="fieldset">
+              <legend className="fieldset-legend">Job Description (optional)</legend>
+              <textarea
+                className="textarea textarea-bordered w-full"
+                value={jd}
+                onChange={(e) => setJd(e.target.value)}
+                rows={4}
+                placeholder="Paste the job description here..."
+              />
+            </fieldset>
+
+            <fieldset className="fieldset">
+              <legend className="fieldset-legend">Your Background / Key Skills</legend>
+              <textarea
+                className="textarea textarea-bordered w-full"
+                value={bg}
+                onChange={(e) => setBg(e.target.value)}
+                rows={2}
+                placeholder="e.g. 3 years Laravel, React, led a team of 4..."
+              />
+            </fieldset>
+
+            <button onClick={handleGenerate} disabled={loading} className="btn btn-primary btn-sm">
+              {loading ? <span className="loading loading-spinner loading-xs" /> : null}
+              {loading ? 'Generating...' : 'Generate Cover Letter'}
+            </button>
+
+            {letter && (
+              <div className="space-y-2">
+                <div className="bg-base-200 rounded-lg p-4 text-sm text-base-content/70 whitespace-pre-wrap leading-relaxed">
+                  {letter}
+                </div>
+                <button onClick={copyToClipboard} className="btn btn-ghost btn-sm btn-block border border-base-300">
+                  Copy to Clipboard
+                </button>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
     </div>
   );
 }

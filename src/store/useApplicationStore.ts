@@ -9,7 +9,7 @@ interface ApplicationStore {
   addApplication: (data: Partial<JobApplication>) => Promise<void>;
   updateApplication: (id: number, updates: Partial<JobApplication>) => Promise<void>;
   deleteApplication: (id: number) => Promise<void>;
-  moveApplication: (id: number, status: ApplicationStatus) => Promise<void>;
+  moveApplication: (id: number, status: ApplicationStatus) => void;
 }
 
 export const useApplicationStore = create<ApplicationStore>((set, get) => ({
@@ -41,5 +41,16 @@ export const useApplicationStore = create<ApplicationStore>((set, get) => ({
     }));
   },
 
-  moveApplication: (id, status) => get().updateApplication(id, { status }),
+  moveApplication: (id, status) => {
+    // Optimistic update — move card instantly in UI
+    set((state) => ({
+      applications: state.applications.map((a) =>
+        a.id === id ? { ...a, status } : a
+      ),
+    }));
+    // Sync with API in background, revert on failure
+    api.put(`/applications/${id}`, { status }).catch(() => {
+      get().fetchApplications();
+    });
+  },
 }));

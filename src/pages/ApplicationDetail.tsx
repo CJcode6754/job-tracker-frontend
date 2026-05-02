@@ -24,39 +24,58 @@ export default function ApplicationDetail() {
     navigate('/');
   };
 
-  if (!application) return <div className="p-8 text-center">Loading...</div>;
+  if (!application) return (
+    <div className="min-h-screen bg-base-200 flex flex-col">
+      <Navbar />
+      <div className="flex-1 flex items-center justify-center">
+        <span className="loading loading-spinner loading-md text-primary" />
+      </div>
+    </div>
+  );
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-base-200">
       <Navbar />
-      <div className="max-w-3xl mx-auto p-6 space-y-6">
-      <div className="flex items-start justify-between">
-        <div>
-          <h1 className="text-2xl font-bold">{application.company}</h1>
-          <p className="text-gray-600">{application.role}</p>
-        </div>
-        <button onClick={handleDelete} className="text-red-500 hover:text-red-700 text-sm">
-          Delete
-        </button>
-      </div>
+      <div className="max-w-3xl mx-auto px-5 py-8 space-y-5">
 
-      {/* Interview Rounds Section */}
-      <section>
-        <h2 className="text-lg font-semibold mb-3">Interview Rounds</h2>
-        {application.interview_rounds.map((round) => (
-          <div key={round.id} className="border rounded-lg p-3 mb-2">
-            <p className="font-medium">{round.type} — {round.date}</p>
-            <p className="text-sm text-gray-600">{round.notes}</p>
+        {/* Header */}
+        <div className="flex items-start justify-between">
+          <div>
+            <h1 className="text-xl font-bold">{application.company}</h1>
+            <p className="text-sm text-base-content/50 mt-0.5">{application.role}</p>
           </div>
-        ))}
-      </section>
+          <button onClick={handleDelete} className="btn btn-ghost btn-sm text-error hover:bg-error/10">
+            Delete
+          </button>
+        </div>
 
-      {/* ✍️ AI Cover Letter Generator */}
-      <CoverLetterGenerator
-        company={application.company}
-        role={application.role}
-        notes={application.notes}
-      />
+        {/* Interview Rounds */}
+        <div className="card bg-base-100 border border-base-200 shadow-sm">
+          <div className="card-body p-5">
+            <h2 className="text-sm font-semibold mb-3">Interview Rounds</h2>
+            {application.interview_rounds.length === 0 ? (
+              <p className="text-sm text-base-content/40">No interview rounds yet.</p>
+            ) : (
+              <div className="space-y-2">
+                {application.interview_rounds.map((round) => (
+                  <div key={round.id} className="bg-base-200 rounded-lg px-4 py-3">
+                    <p className="text-sm font-medium">
+                      {round.type?.replace('_', ' ')} — {round.date}
+                    </p>
+                    {round.notes && <p className="text-xs text-base-content/50 mt-1">{round.notes}</p>}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Cover Letter */}
+        <CoverLetterGenerator
+          company={application.company}
+          role={application.role}
+          notes={application.notes}
+        />
       </div>
     </div>
   );

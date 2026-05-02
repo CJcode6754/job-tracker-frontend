@@ -8,32 +8,39 @@ export default function Board() {
   const [showForm, setShowForm] = useState(false);
 
   return (
-    <div className="flex flex-col h-screen overflow-hidden">
+    <div className="flex flex-col h-screen overflow-hidden bg-base-200">
       <Navbar />
-      <div className="flex items-center justify-between px-4 py-3 border-b bg-white shrink-0">
-        <h1 className="text-lg font-bold text-gray-800">Board</h1>
-        <button
-          onClick={() => setShowForm(true)}
-          className="bg-indigo-600 hover:bg-indigo-700 text-white text-sm px-4 py-2 rounded-lg"
-        >
-          + Add Application
+
+      {/* Toolbar */}
+      <div className="flex items-center justify-between px-5 py-2.5 bg-base-100 border-b border-base-200 shrink-0">
+        <div>
+          <p className="text-sm font-semibold">Applications</p>
+          <p className="text-xs text-base-content/50 mt-0.5">Drag cards to update status</p>
+        </div>
+        <button onClick={() => setShowForm(true)} className="btn btn-primary btn-sm gap-1.5">
+          <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+          </svg>
+          Add Application
         </button>
       </div>
 
-      <div className="shrink-0">
-        <FilterBar />
-      </div>
+      <div className="shrink-0"><FilterBar /></div>
+      <div className="flex-1 overflow-hidden"><KanbanBoard /></div>
 
-      <div className="flex-1 overflow-hidden">
-        <KanbanBoard />
-      </div>
-
+      {/* Modal */}
       {showForm && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-          <div className="bg-white rounded-2xl p-6 w-full max-w-lg max-h-[90vh] overflow-y-auto shadow-xl">
-            <h2 className="text-lg font-semibold mb-4">New Application</h2>
-            <ApplicationForm onClose={() => setShowForm(false)} />
+        <div className="modal modal-open">
+          <div className="modal-box w-full max-w-lg p-0">
+            <div className="flex items-center justify-between px-5 py-4 border-b border-base-200">
+              <h3 className="font-semibold text-sm">New Application</h3>
+              <button onClick={() => setShowForm(false)} className="btn btn-ghost btn-xs btn-circle">✕</button>
+            </div>
+            <div className="p-5">
+              <ApplicationForm onClose={() => setShowForm(false)} />
+            </div>
           </div>
+          <div className="modal-backdrop" onClick={() => setShowForm(false)} />
         </div>
       )}
     </div>
