@@ -49,7 +49,7 @@ export default function Login() {
       await login(data.email, data.password);
       navigate('/');
     } catch {
-      toast.error('Wrong email or password.');
+      toast.error('Incorrect email or password.');
     }
   };
 

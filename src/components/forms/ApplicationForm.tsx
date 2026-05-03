@@ -68,7 +68,7 @@ export default function ApplicationForm({ onClose, defaultValues, applicationId 
 
   const { register, handleSubmit, setValue, watch, formState: { errors, isSubmitting } } = useForm<FormData>({
     resolver: zodResolver(schema),
-    defaultValues: defaultValues ?? { status: 'wishlist', priority: 'medium', salary_currency: 'USD' },
+    defaultValues: defaultValues ?? { status: 'wishlist', priority: 'medium', salary_currency: 'PHP' },
   });
 
   const priority       = watch('priority');
