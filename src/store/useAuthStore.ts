@@ -35,16 +35,12 @@ interface AuthStore {
 
 export const useAuthStore = create<AuthStore>((set, get) => ({
   user: null,
-  token: localStorage.getItem('auth_token'),
+  token: null,
   loading: true,
 
   fetchUser: async () => {
     set({ loading: true });
     try {
-      const token = localStorage.getItem('auth_token');
-      if (token) {
-        api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-      }
       const { data } = await api.get('/me');
       if (data && typeof data === 'object' && data.id) {
         set({ user: data, loading: false });
@@ -59,13 +55,8 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
 
   login: async (email, password) => {
     const { data } = await api.post('/login', { email, password });
-    const token = data.plainTextToken || data.token;
-    if (token) {
-      localStorage.setItem('auth_token', token);
-      api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-      set({ user: data.user, token });
-      scheduleRefresh(() => get().refreshToken());
-    }
+    set({ user: data.user, token: null });
+    scheduleRefresh(() => get().refreshToken());
   },
 
   register: async (name, email, password, passwordConfirmation) => {
@@ -73,38 +64,20 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
       name, email, password,
       password_confirmation: passwordConfirmation,
     });
-    const token = data.plainTextToken || data.token;
-    if (token) {
-      localStorage.setItem('auth_token', token);
-      api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-      set({ user: data.user, token });
-      scheduleRefresh(() => get().refreshToken());
-    }
+    set({ user: data.user, token: null });
+    scheduleRefresh(() => get().refreshToken());
   },
 
   refreshToken: async () => {
-    const token = localStorage.getItem('auth_token');
-    if (token) {
-      api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-    }
-    const { data } = await api.post('/refresh');
-    if (data.plainTextToken) {
-      localStorage.setItem('auth_token', data.plainTextToken);
-      api.defaults.headers.common['Authorization'] = `Bearer ${data.plainTextToken}`;
-    }
+    await api.post('/refresh');
     scheduleRefresh(() => get().refreshToken());
   },
 
   logout: async () => {
     clearRefreshTimer();
-    try { 
-      const token = localStorage.getItem('auth_token');
-      if (token) {
-        api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-      }
+    try {
       await api.post('/logout');
     } finally {
-      localStorage.removeItem('auth_token');
       delete api.defaults.headers.common['Authorization'];
       set({ user: null, token: null });
     }
@@ -113,7 +86,6 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
 
 export function clearAuth() {
   clearRefreshTimer();
-  localStorage.removeItem('auth_token');
   delete api.defaults.headers.common['Authorization'];
   useAuthStore.setState({ user: null, loading: false, token: null });
 }
