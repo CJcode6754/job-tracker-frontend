@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '@/lib/axios';
 import { useAiInsights } from '@/hooks/useAi';
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell, PieChart, Pie, Legend } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell, PieChart, Pie } from 'recharts';
 import Navbar from '@/components/layout/Navbar';
 
 interface DashboardStats {
@@ -55,10 +55,11 @@ export default function Dashboard() {
   );
 
   return (
-    <div className="min-h-screen bg-base-200/50">
+    <div className="h-screen flex flex-col bg-base-200/50 overflow-hidden">
       <Navbar />
       
-      <div className="max-w-6xl mx-auto px-4 sm:px-8 py-8 sm:py-12">
+      <div className="flex-1 overflow-y-auto px-4 sm:px-8 py-8 sm:py-12">
+        <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="mb-10">
           <h1 className="text-4xl font-black tracking-tight">Performance</h1>
@@ -197,7 +198,7 @@ export default function Dashboard() {
           </div>
 
           {/* AI Side Panel */}
-          <div className="bg-base-100 rounded-3xl p-8 border border-base-content/5 shadow-sm flex flex-col h-full min-h-[500px]">
+          <div className="bg-base-100 rounded-3xl p-8 border border-base-content/5 shadow-sm flex flex-col h-[650px] lg:sticky lg:top-8">
              <div className="flex items-start justify-between mb-8">
               <div>
                 <h2 className="text-lg font-black tracking-tight">AI Insights</h2>
@@ -264,5 +265,6 @@ export default function Dashboard() {
       </div>
     </div>
   </div>
+</div>
 );
 }

@@ -5,6 +5,7 @@ import { useApplicationStore } from '@/store/useApplicationStore';
 import KanbanColumn from './KanbanColumn';
 import ApplicationCard from './ApplicationCard';
 import type { ApplicationStatus, JobApplication } from '@/types';
+import { AnimatePresence, motion } from 'framer-motion';
 
 const COLUMNS: { id: ApplicationStatus; label: string }[] = [
   { id: 'wishlist',     label: 'Wishlist' },
@@ -88,36 +89,53 @@ export default function KanbanBoard({
     }
   };
 
-  if (loading) {
-    return (
-      <div className="flex gap-3 p-4 h-full overflow-x-auto overflow-y-hidden pb-4 min-w-0">
-        {SKELETON_COUNTS.map((count, i) => (
-          <ColumnSkeleton key={i} count={count} />
-        ))}
-      </div>
-    );
-  }
-
   return (
-    <DndContext sensors={sensors} collisionDetection={rectIntersection} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
-      <div className="flex gap-3 p-4 h-full overflow-x-auto overflow-y-hidden pb-4 min-w-0">
-        {COLUMNS.filter(col => {
-          if (col.id === 'rejected') return showRejected;
-          if (col.id === 'archived') return showArchived;
-          return true;
-        }).map(({ id, label }) => (
-          <KanbanColumn
-            key={id}
-            status={id}
-            label={label}
-            applications={applications.filter((a) => a.status === id)}
-            isDragging={!!activeCard}
-          />
-        ))}
-      </div>
-      <DragOverlay>
-        {activeCard ? <ApplicationCard application={activeCard} isOverlay /> : null}
-      </DragOverlay>
-    </DndContext>
+    <div className="h-full relative">
+      <AnimatePresence mode="wait">
+        {loading ? (
+          <motion.div 
+            key="skeleton"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+            className="flex gap-3 p-4 h-full overflow-x-auto overflow-y-hidden pb-4 min-w-0"
+          >
+            {SKELETON_COUNTS.map((count, i) => (
+              <ColumnSkeleton key={i} count={count} />
+            ))}
+          </motion.div>
+        ) : (
+          <motion.div
+            key="board"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, ease: "easeOut" }}
+            className="h-full"
+          >
+            <DndContext sensors={sensors} collisionDetection={rectIntersection} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
+              <div className="flex gap-3 p-4 h-full overflow-x-auto overflow-y-hidden pb-4 min-w-0">
+                {COLUMNS.filter(col => {
+                  if (col.id === 'rejected') return showRejected;
+                  if (col.id === 'archived') return showArchived;
+                  return true;
+                }).map(({ id, label }) => (
+                  <KanbanColumn
+                    key={id}
+                    status={id}
+                    label={label}
+                    applications={applications.filter((a) => a.status === id)}
+                    isDragging={!!activeCard}
+                  />
+                ))}
+              </div>
+              <DragOverlay>
+                {activeCard ? <ApplicationCard application={activeCard} isOverlay /> : null}
+              </DragOverlay>
+            </DndContext>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
   );
 }

@@ -120,7 +120,7 @@ export default function Login() {
           </div>
 
           <div className="relative z-10 flex items-center gap-4 text-white/40 text-[10px] tracking-widest uppercase">
-            <span>© 2025 HireSight Labs</span>
+            <span>© 2026 HireSight Labs</span>
             <div className="w-1 h-1 bg-white/20 rounded-full" />
             <span>Built for Builders</span>
           </div>

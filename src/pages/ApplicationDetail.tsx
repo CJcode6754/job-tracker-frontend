@@ -47,7 +47,7 @@ function InfoItem({ label, value }: { label: string; value?: string | null }) {
 export default function ApplicationDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { deleteApplication } = useApplicationStore();
+  const { deleteApplication, updateApplication } = useApplicationStore();
   const [application, setApplication] = useState<JobApplication | null>(null);
   const [notFound, setNotFound]           = useState(false);
   const [showAddRound, setShowAddRound]   = useState(false);
@@ -60,10 +60,19 @@ export default function ApplicationDetail() {
       .catch(() => setNotFound(true));
   }, [id]);
 
-  const handleDelete = async () => {
-    if (!confirm('Permanently delete this application?')) return;
-    await deleteApplication(Number(application?.id));
-    toast.success('Application removed');
+  const handleArchive = async () => {
+    if (!application) return;
+    if (!confirm('Move this application to the archive? It will be hidden from the main board.')) return;
+    await updateApplication(application.id, { status: 'archived' });
+    toast.success('Application moved to archive');
+    navigate('/board');
+  };
+
+  const handlePermanentDelete = async () => {
+    if (!application) return;
+    if (!confirm('Permanently delete this application? This cannot be undone.')) return;
+    await deleteApplication(application.id);
+    toast.success('Application permanently deleted');
     navigate('/board');
   };
 
@@ -156,12 +165,24 @@ export default function ApplicationDetail() {
             <span className="text-[10px] font-black uppercase tracking-widest opacity-60 group-hover:opacity-100">Back to Pipeline</span>
           </button>
 
-          <button 
-            onClick={handleDelete} 
-            className="btn btn-ghost btn-sm rounded-xl text-error hover:bg-error/10 font-bold"
-          >
-            Archive Entry
-          </button>
+          <div className="flex items-center gap-2">
+            <button 
+              onClick={handleArchive} 
+              className="btn btn-ghost btn-sm rounded-xl text-primary hover:bg-primary/10 font-bold"
+              disabled={application.status === 'archived'}
+            >
+              {application.status === 'archived' ? 'Already Archived' : 'Archive Entry'}
+            </button>
+            <button 
+              onClick={handlePermanentDelete} 
+              className="btn btn-ghost btn-xs btn-circle text-error hover:bg-error/10"
+              title="Delete Permanently"
+            >
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+              </svg>
+            </button>
+          </div>
         </div>
 
         {/* Hero Section */}
