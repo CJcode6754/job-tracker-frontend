@@ -1,57 +1,100 @@
-import * as XLSX from 'xlsx';
+import ExcelJS from 'exceljs';
+import { saveAs } from 'file-saver';
 import type { JobApplication } from '@/types';
 
 export function useExport() {
-  const exportToExcel = (applications: JobApplication[]) => {
-    const rows = applications.map((app) => ({
-      Company:           app.company,
-      Role:              app.role,
-      Status:            app.status,
-      Priority:          app.priority,
-      'Applied Date':    app.applied_date ?? '',
-      Deadline:          app.deadline ?? '',
-      'Job URL':         app.job_url ?? '',
-      Location:          app.location ?? '',
-      'Work Type':       app.work_type ?? '',
-      'Employment Type': app.employment_type ?? '',
-      'Salary Min':      app.salary_min ?? '',
-      'Salary Max':      app.salary_max ?? '',
-      Currency:          app.salary_currency ?? '',
-      Notes:             app.notes ?? '',
-    }));
+  const exportToExcel = async (applications: JobApplication[]) => {
+    const wb = new ExcelJS.Workbook();
+    const ws = wb.addWorksheet('Applications');
 
-    const ws = XLSX.utils.json_to_sheet(rows);
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, 'Applications');
-
-    const colWidths = Object.keys(rows[0] ?? {}).map((key) => ({
-      wch: Math.max(key.length, ...rows.map((r) => String(r[key as keyof typeof r] ?? '').length)) + 2,
-    }));
-    ws['!cols'] = colWidths;
-
-    XLSX.writeFile(wb, `job-applications-${new Date().toISOString().slice(0, 10)}.xlsx`);
-  };
-
-  const downloadTemplate = () => {
-    const sample = [
-      {
-        Company:           'Acme Corp',
-        Role:              'Frontend Engineer',
-        Status:            'applied',
-        Priority:          'high',
-        'Applied Date':    '2025-01-15',
-        Deadline:          '2025-02-01',
-        'Job URL':         'https://acme.com/careers/123',
-        Location:          'New York, NY',
-        'Work Type':       'remote',
-        'Employment Type': 'full_time',
-        'Salary Min':      80000,
-        'Salary Max':      120000,
-        Currency:          'USD',
-        Notes:             'Referral from John. Strong React focus.',
-      },
+    // Define columns
+    ws.columns = [
+      { header: 'Company', key: 'Company', width: 20 },
+      { header: 'Role', key: 'Role', width: 20 },
+      { header: 'Status', key: 'Status', width: 15 },
+      { header: 'Priority', key: 'Priority', width: 15 },
+      { header: 'Applied Date', key: 'Applied Date', width: 15 },
+      { header: 'Deadline', key: 'Deadline', width: 15 },
+      { header: 'Job URL', key: 'Job URL', width: 30 },
+      { header: 'Location', key: 'Location', width: 20 },
+      { header: 'Work Type', key: 'Work Type', width: 15 },
+      { header: 'Employment Type', key: 'Employment Type', width: 15 },
+      { header: 'Salary Min', key: 'Salary Min', width: 15 },
+      { header: 'Salary Max', key: 'Salary Max', width: 15 },
+      { header: 'Currency', key: 'Currency', width: 10 },
+      { header: 'Notes', key: 'Notes', width: 40 },
     ];
 
+    // Add rows
+    applications.forEach((app) => {
+      ws.addRow({
+        Company:           app.company,
+        Role:              app.role,
+        Status:            app.status,
+        Priority:          app.priority,
+        'Applied Date':    app.applied_date ?? '',
+        Deadline:          app.deadline ?? '',
+        'Job URL':         app.job_url ?? '',
+        Location:          app.location ?? '',
+        'Work Type':       app.work_type ?? '',
+        'Employment Type': app.employment_type ?? '',
+        'Salary Min':      app.salary_min ?? '',
+        'Salary Max':      app.salary_max ?? '',
+        Currency:          app.salary_currency ?? '',
+        Notes:             app.notes ?? '',
+      });
+    });
+
+    const buffer = await wb.xlsx.writeBuffer();
+    saveAs(new Blob([buffer]), `job-applications-${new Date().toISOString().slice(0, 10)}.xlsx`);
+  };
+
+  const downloadTemplate = async () => {
+    const wb = new ExcelJS.Workbook();
+
+    // Template Sheet
+    const wsSample = wb.addWorksheet('Template');
+    wsSample.columns = [
+      { header: 'Company', key: 'Company', width: 20 },
+      { header: 'Role', key: 'Role', width: 20 },
+      { header: 'Status', key: 'Status', width: 15 },
+      { header: 'Priority', key: 'Priority', width: 15 },
+      { header: 'Applied Date', key: 'Applied Date', width: 15 },
+      { header: 'Deadline', key: 'Deadline', width: 15 },
+      { header: 'Job URL', key: 'Job URL', width: 30 },
+      { header: 'Location', key: 'Location', width: 20 },
+      { header: 'Work Type', key: 'Work Type', width: 15 },
+      { header: 'Employment Type', key: 'Employment Type', width: 15 },
+      { header: 'Salary Min', key: 'Salary Min', width: 15 },
+      { header: 'Salary Max', key: 'Salary Max', width: 15 },
+      { header: 'Currency', key: 'Currency', width: 10 },
+      { header: 'Notes', key: 'Notes', width: 40 },
+    ];
+    wsSample.addRow({
+      Company:           'Acme Corp',
+      Role:              'Frontend Engineer',
+      Status:            'applied',
+      Priority:          'high',
+      'Applied Date':    '2025-01-15',
+      Deadline:          '2025-02-01',
+      'Job URL':         'https://acme.com/careers/123',
+      Location:          'New York, NY',
+      'Work Type':       'remote',
+      'Employment Type': 'full_time',
+      'Salary Min':      80000,
+      'Salary Max':      120000,
+      Currency:          'USD',
+      Notes:             'Referral from John. Strong React focus.',
+    });
+
+    // Guide Sheet
+    const wsGuide = wb.addWorksheet('Column Guide');
+    wsGuide.columns = [
+      { header: 'Column', key: 'Column', width: 20 },
+      { header: 'Required', key: 'Required', width: 10 },
+      { header: 'Valid Values', key: 'Valid Values', width: 55 },
+    ];
+    
     const guide = [
       { Column: 'Company',         Required: 'Yes', 'Valid Values': 'Any text' },
       { Column: 'Role',            Required: 'Yes', 'Valid Values': 'Any text' },
@@ -68,18 +111,11 @@ export function useExport() {
       { Column: 'Currency',        Required: 'No',  'Valid Values': 'USD | EUR | GBP | CAD | AUD' },
       { Column: 'Notes',           Required: 'No',  'Valid Values': 'Any text' },
     ];
+    
+    guide.forEach(g => wsGuide.addRow(g));
 
-    const wb = XLSX.utils.book_new();
-
-    const wsSample = XLSX.utils.json_to_sheet(sample);
-    wsSample['!cols'] = Object.keys(sample[0]).map((k) => ({ wch: Math.max(k.length, 20) }));
-    XLSX.utils.book_append_sheet(wb, wsSample, 'Template');
-
-    const wsGuide = XLSX.utils.json_to_sheet(guide);
-    wsGuide['!cols'] = [{ wch: 20 }, { wch: 10 }, { wch: 55 }];
-    XLSX.utils.book_append_sheet(wb, wsGuide, 'Column Guide');
-
-    XLSX.writeFile(wb, 'job-tracker-import-template.xlsx');
+    const buffer = await wb.xlsx.writeBuffer();
+    saveAs(new Blob([buffer]), 'hiresight-import-template.xlsx');
   };
 
   return { exportToExcel, downloadTemplate };

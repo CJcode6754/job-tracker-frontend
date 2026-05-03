@@ -72,7 +72,7 @@ export default function Login() {
               <path strokeLinecap="round" strokeLinejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
             </svg>
           </div>
-          <span className="text-primary-content font-semibold text-sm">JobTracker</span>
+          <span className="text-primary-content font-semibold text-sm">HireSight</span>
         </div>
 
         <div className="space-y-5">
@@ -101,7 +101,7 @@ export default function Login() {
           </div>
         </div>
 
-        <p className="text-primary-content/30 text-xs">© 2025 JobTracker</p>
+        <p className="text-primary-content/30 text-xs">© 2025 HireSight</p>
       </div>
 
       {/* Right panel */}
@@ -115,7 +115,7 @@ export default function Login() {
                   <path strokeLinecap="round" strokeLinejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                 </svg>
               </div>
-              <span className="font-semibold text-sm">JobTracker</span>
+              <span className="font-semibold text-sm">HireSight</span>
             </div>
             <div className="dropdown dropdown-end ml-auto">
               <button tabIndex={0} className="btn btn-ghost btn-sm btn-circle" title="Change theme">

@@ -26,13 +26,14 @@ export default function Navbar() {
       {/* Brand */}
       <div className="navbar-start gap-2 sm:gap-3">
         <div className="flex items-center gap-2">
-          <img src="/src/assets/icon.png" alt="JobTracker" className="w-8 h-8 rounded-full shrink-0" />
-          <span className="font-semibold text-sm tracking-tight hidden xs:block sm:block">JobTracker</span>
+          <img src="/src/assets/icon.png" alt="HireSight" className="w-8 h-8 rounded-full shrink-0" />
+          <span className="font-semibold text-sm tracking-tight hidden xs:block sm:block">HireSight</span>
         </div>
 
         <div className="flex items-center gap-0.5">
           <NavLink to="/" end className={navLinkClass}>Board</NavLink>
           <NavLink to="/dashboard" className={navLinkClass}>Dashboard</NavLink>
+          <NavLink to="/about" className={navLinkClass}>About</NavLink>
         </div>
       </div>
 

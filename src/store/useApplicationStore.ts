@@ -30,7 +30,7 @@ export const useApplicationStore = create<ApplicationStore>((set, get) => ({
     try {
       const { data } = await api.get('/applications', { 
         params: {
-          per_page: 20,
+          per_page: 200,
           ...params,
         }
       });
