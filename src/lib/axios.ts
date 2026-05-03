@@ -1,8 +1,13 @@
 import axios from 'axios';
 import { clearAuth } from '@/store/useAuthStore';
 
+// Use environment variable for API URL if provided, otherwise use relative path
+const baseURL = import.meta.env.VITE_API_URL 
+  ? `${import.meta.env.VITE_API_URL}/api`
+  : '/api';
+
 const api = axios.create({
-  baseURL: '/api',
+  baseURL,
   withCredentials: true,
   headers: {
     'Accept': 'application/json',

@@ -23,7 +23,7 @@ export default function FilterBar() {
 
   return (
     <div className="flex flex-wrap items-center gap-3 px-6 py-3 bg-base-100/80 backdrop-blur-md border-b border-base-content/5">
-      <div className="relative group flex-1 min-w-[240px] max-w-xs">
+      <div className="relative group flex-1 min-w-60 max-w-xs">
         <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none text-base-content/20 group-focus-within:text-primary transition-colors">
           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.35-4.35M17 11A6 6 0 115 11a6 6 0 0112 0z" />

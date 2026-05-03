@@ -142,8 +142,6 @@ export default function ApplicationForm({ onClose, defaultValues, applicationId 
     toast.success('Applied to form');
   };
 
-  const priorityColors: Record<string, string> = { high: 'btn-error', medium: 'btn-warning', low: 'btn-success' };
-
   return (
     <form onSubmit={handleSubmit(onSubmit, onError)} className="flex flex-col h-full max-h-[85vh]">
       <div className="flex-1 overflow-y-auto custom-scrollbar px-8 py-6 space-y-8">
@@ -197,7 +195,7 @@ export default function ApplicationForm({ onClose, defaultValues, applicationId 
                     .map(([k, v]) => (
                       <div key={k} className="flex justify-between items-center text-[11px]">
                         <span className="font-bold opacity-30 uppercase tracking-widest">{k}</span>
-                        <span className="font-black text-right truncate max-w-[200px]">{v}</span>
+                        <span className="font-black text-right truncate max-w-50">{v}</span>
                       </div>
                     ))}
                   {tagsApplied ? (
@@ -341,7 +339,7 @@ export default function ApplicationForm({ onClose, defaultValues, applicationId 
               </label>
               <div className="flex flex-wrap gap-1.5 p-1 bg-base-200 rounded-xl">
                 {EMPLOYMENT_TYPES.map((e) => (
-                  <label key={e} className="cursor-pointer flex-1 min-w-[70px]">
+                  <label key={e} className="cursor-pointer flex-1 min-w-17.5">
                     <input type="radio" {...register('employment_type')} value={e} className="sr-only" />
                     <div className={`py-1.5 rounded-lg text-[9px] font-black text-center uppercase tracking-widest transition-all ${
                       employmentType === e ? 'bg-base-100 text-primary shadow-sm shadow-black/5' : 'text-base-content/30 hover:text-base-content/60'

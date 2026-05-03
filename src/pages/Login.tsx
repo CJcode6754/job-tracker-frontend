@@ -78,7 +78,7 @@ export default function Login() {
       <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-primary/10 blur-[120px] rounded-full" />
       <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-secondary/10 blur-[120px] rounded-full" />
 
-      <div className="w-full max-w-5xl flex bg-base-100 rounded-4xl shadow-2xl overflow-hidden border border-base-content/5 relative z-10 min-h-[600px]">
+      <div className="w-full max-w-5xl flex bg-base-100 rounded-4xl shadow-2xl overflow-hidden border border-base-content/5 relative z-10 min-h-150">
 
         {/* Left Side: Visual/Hero */}
         <div className="hidden lg:flex w-1/2 bg-linear-to-br from-[#0a0a0a] to-[#1a1a1a] p-12 flex-col justify-between relative overflow-hidden">

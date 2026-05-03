@@ -1,7 +1,7 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import type { InterviewRound } from '@/types';
+import type { Resolver } from 'react-hook-form';
 
 const schema = z.object({
   type:             z.enum(['technical', 'hr', 'system_design', 'take_home']),
@@ -40,15 +40,19 @@ function StarRating({ value, onChange }: { value?: number; onChange: (v: number)
 
 export default function InterviewRoundForm({ defaultValues, onSubmit, onCancel }: Props) {
   const { register, handleSubmit, setValue, watch, formState: { errors, isSubmitting } } = useForm<InterviewRoundFormData>({
-    resolver: zodResolver(schema),
+    resolver: zodResolver(schema) as Resolver<InterviewRoundFormData>,
     defaultValues: defaultValues ?? { type: 'hr' },
   });
+
+  const onInternalSubmit = async (data: InterviewRoundFormData) => {
+    await onSubmit(data);
+  };
 
   const rating = watch('self_rating');
   const type   = watch('type');
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-3">
+    <form onSubmit={handleSubmit(onInternalSubmit)} className="space-y-3">
       <fieldset className="fieldset">
         <legend className="fieldset-legend">Type</legend>
         <div className="flex flex-wrap gap-2">

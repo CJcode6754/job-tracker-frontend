@@ -10,11 +10,14 @@ export default defineConfig({
   },
   server: {
     port: 5173,
-    proxy: {
-      '/api': {
-        target: 'http://localhost:8000',
-        changeOrigin: true,
+    // Only use proxy in development when no API URL is set
+    ...(process.env.NODE_ENV === 'development' && !process.env.VITE_API_URL && {
+      proxy: {
+        '/api': {
+          target: 'http://localhost:8000',
+          changeOrigin: true,
+        },
       },
-    },
+    }),
   },
 });
