@@ -7,13 +7,6 @@ import Navbar from '@/components/layout/Navbar';
 import InterviewRoundForm, { type InterviewRoundFormData } from '@/components/forms/InterviewRoundForm';
 import { toast } from 'sonner';
 
-const TYPE_COLORS: Record<string, string> = {
-  technical:    'badge-info',
-  hr:           'badge-success',
-  system_design:'badge-warning',
-  take_home:    'badge-secondary',
-};
-
 const STATUS_STYLES: Record<string, string> = {
   wishlist:     'bg-base-content/10 text-base-content',
   applied:      'bg-info/15 text-info',

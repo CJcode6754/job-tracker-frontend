@@ -8,21 +8,21 @@ import { useThemeStore, THEMES } from '@/store/useThemeStore';
 import { toast } from 'sonner';
 
 const loginSchema = z.object({
-  email:    z.string().email('Invalid email'),
+  email: z.string().email('Invalid email'),
   password: z.string().min(1, 'Password is required'),
 });
 
 const registerSchema = z.object({
-  name:                  z.string().min(1, 'Name is required'),
-  email:                 z.string().email('Invalid email'),
-  password:              z.string().min(8, 'At least 8 characters'),
+  name: z.string().min(1, 'Name is required'),
+  email: z.string().email('Invalid email'),
+  password: z.string().min(8, 'At least 8 characters'),
   password_confirmation: z.string().min(1, 'Please confirm your password'),
 }).refine((d) => d.password === d.password_confirmation, {
   message: "Passwords don't match",
   path: ['password_confirmation'],
 });
 
-type LoginData    = z.infer<typeof loginSchema>;
+type LoginData = z.infer<typeof loginSchema>;
 type RegisterData = z.infer<typeof registerSchema>;
 
 function Field({ label, error, children }: { label: string; error?: string; children: React.ReactNode }) {
@@ -44,11 +44,12 @@ function Field({ label, error, children }: { label: string; error?: string; chil
 export default function Login() {
   const [tab, setTab] = useState<'login' | 'register'>('login');
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const { login, register } = useAuthStore();
   const { theme, setTheme } = useThemeStore();
   const navigate = useNavigate();
 
-  const loginForm    = useForm<LoginData>({ resolver: zodResolver(loginSchema) });
+  const loginForm = useForm<LoginData>({ resolver: zodResolver(loginSchema) });
   const registerForm = useForm<RegisterData>({ resolver: zodResolver(registerSchema) });
 
   const handleLogin = async (data: LoginData) => {
@@ -78,12 +79,12 @@ export default function Login() {
       <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-secondary/10 blur-[120px] rounded-full" />
 
       <div className="w-full max-w-5xl flex bg-base-100 rounded-4xl shadow-2xl overflow-hidden border border-base-content/5 relative z-10 min-h-[600px]">
-        
+
         {/* Left Side: Visual/Hero */}
         <div className="hidden lg:flex w-1/2 bg-linear-to-br from-[#0a0a0a] to-[#1a1a1a] p-12 flex-col justify-between relative overflow-hidden">
           {/* Subtle mesh effect */}
           <div className="absolute inset-0 opacity-20" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, rgba(255,255,255,0.1) 1px, transparent 0)', backgroundSize: '24px 24px' }} />
-          
+
           <div className="relative z-10 flex items-center gap-2">
             <div className="w-10 h-10 rounded-xl bg-white/10 backdrop-blur-md flex items-center justify-center border border-white/20">
               <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="white" strokeWidth={2.5}>
@@ -101,7 +102,7 @@ export default function Login() {
             <p className="text-white/70 text-lg max-w-md font-light leading-relaxed">
               The only platform designed for high-performance job seekers. Organize, automate, and land your dream role.
             </p>
-            
+
             <div className="flex flex-wrap gap-3 pt-4">
               {[
                 'Privacy Focused',
@@ -126,10 +127,8 @@ export default function Login() {
           </div>
         </div>
 
-        {/* Right Side: Form */}
         <div className="flex-1 p-8 sm:p-12 flex flex-col relative bg-base-100">
-          
-          {/* Theme switcher floating */}
+
           <div className="absolute top-6 right-6">
             <div className="dropdown dropdown-end">
               <button tabIndex={0} className="btn btn-ghost btn-sm btn-circle opacity-40 hover:opacity-100">
@@ -154,7 +153,7 @@ export default function Login() {
 
           <div className="flex-1 flex flex-col justify-center max-w-sm mx-auto w-full">
             <div className="mb-10 lg:hidden text-center">
-               <div className="w-12 h-12 rounded-2xl bg-primary flex items-center justify-center mx-auto mb-4 shadow-lg shadow-primary/20">
+              <div className="w-12 h-12 rounded-2xl bg-primary flex items-center justify-center mx-auto mb-4 shadow-lg shadow-primary/20">
                 <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="white" strokeWidth={2.5}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                 </svg>
@@ -169,16 +168,15 @@ export default function Login() {
               </p>
             </div>
 
-            {/* Premium Tabs */}
             <div className="flex p-1 bg-base-200 rounded-2xl mb-8">
-              <button 
-                onClick={() => setTab('login')} 
+              <button
+                onClick={() => setTab('login')}
                 className={`flex-1 py-2 text-sm font-bold rounded-xl transition-all ${tab === 'login' ? 'bg-base-100 shadow-sm text-primary' : 'text-base-content/40 hover:text-base-content'}`}
               >
                 Sign In
               </button>
-              <button 
-                onClick={() => setTab('register')} 
+              <button
+                onClick={() => setTab('register')}
                 className={`flex-1 py-2 text-sm font-bold rounded-xl transition-all ${tab === 'register' ? 'bg-base-100 shadow-sm text-primary' : 'text-base-content/40 hover:text-base-content'}`}
               >
                 Register
@@ -188,22 +186,22 @@ export default function Login() {
             {tab === 'login' ? (
               <form onSubmit={loginForm.handleSubmit(handleLogin)} className="space-y-5">
                 <Field label="Email Address" error={loginForm.formState.errors.email?.message}>
-                  <input 
-                    className="input input-lg bg-base-200 border-none focus:ring-2 focus:ring-primary/20 rounded-2xl w-full text-sm font-medium" 
-                    type="email" 
-                    placeholder="name@company.com" 
-                    {...loginForm.register('email')} 
+                  <input
+                    className="input input-lg bg-base-200 border-none focus:ring-2 focus:ring-primary/20 rounded-2xl w-full text-sm font-medium"
+                    type="email"
+                    placeholder="name@company.com"
+                    {...loginForm.register('email')}
                   />
                 </Field>
                 <Field label="Password" error={loginForm.formState.errors.password?.message}>
                   <div className="relative">
-                    <input 
-                      className="input input-lg bg-base-200 border-none focus:ring-2 focus:ring-primary/20 rounded-2xl w-full text-sm font-medium pr-12" 
-                      type={showPassword ? "text" : "password"} 
-                      placeholder="••••••••" 
-                      {...loginForm.register('password')} 
+                    <input
+                      className="input input-lg bg-base-200 border-none focus:ring-2 focus:ring-primary/20 rounded-2xl w-full text-sm font-medium pr-12"
+                      type={showPassword ? "text" : "password"}
+                      placeholder="••••••••"
+                      {...loginForm.register('password')}
                     />
-                    <button 
+                    <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
                       className="absolute right-4 top-1/2 -translate-y-1/2 text-base-content/20 hover:text-primary transition-colors"
@@ -221,9 +219,9 @@ export default function Login() {
                     </button>
                   </div>
                 </Field>
-                <button 
-                  type="submit" 
-                  disabled={loginForm.formState.isSubmitting} 
+                <button
+                  type="submit"
+                  disabled={loginForm.formState.isSubmitting}
                   className="btn btn-primary btn-lg rounded-2xl w-full font-bold shadow-xl shadow-primary/20 border-none"
                 >
                   {loginForm.formState.isSubmitting ? <span className="loading loading-spinner" /> : 'Continue to Dashboard'}
@@ -239,15 +237,62 @@ export default function Login() {
                 </Field>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <Field label="Password" error={registerForm.formState.errors.password?.message}>
-                    <input className="input bg-base-200 border-none focus:ring-2 focus:ring-primary/20 rounded-2xl w-full text-sm font-medium" type={showPassword ? "text" : "password"} placeholder="••••••••" {...registerForm.register('password')} />
+                    <div className="relative">
+                      <input
+                        className="input input-lg bg-base-200 border-none focus:ring-2 focus:ring-primary/20 rounded-2xl w-full text-sm font-medium pr-12"
+                        type={showPassword ? "text" : "password"}
+                        placeholder="••••••••"
+                        {...registerForm.register('password')}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute right-4 top-1/2 -translate-y-1/2 text-base-content/20 hover:text-primary transition-colors"
+                      >
+                        {showPassword ? (
+                          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l18 18" />
+                          </svg>
+                        ) : (
+                          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                          </svg>
+                        )}
+                      </button>
+                    </div>
                   </Field>
+
                   <Field label="Confirm" error={registerForm.formState.errors.password_confirmation?.message}>
-                    <input className="input bg-base-200 border-none focus:ring-2 focus:ring-primary/20 rounded-2xl w-full text-sm font-medium" type={showPassword ? "text" : "password"} placeholder="••••••••" {...registerForm.register('password_confirmation')} />
+                    <div className="relative">
+                      <input
+                        className="input input-lg bg-base-200 border-none focus:ring-2 focus:ring-primary/20 rounded-2xl w-full text-sm font-medium pr-12"
+                        type={showConfirmPassword ? "text" : "password"}
+                        placeholder="••••••••"
+                        {...registerForm.register('password_confirmation')}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                        className="absolute right-4 top-1/2 -translate-y-1/2 text-base-content/20 hover:text-primary transition-colors"
+                      >
+                        {showConfirmPassword ? (
+                          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l18 18" />
+                          </svg>
+                        ) : (
+                          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                          </svg>
+                        )}
+                      </button>
+                    </div>
                   </Field>
                 </div>
-                <button 
-                  type="submit" 
-                  disabled={registerForm.formState.isSubmitting} 
+                <button
+                  type="submit"
+                  disabled={registerForm.formState.isSubmitting}
                   className="btn btn-primary btn-lg rounded-2xl w-full font-bold shadow-xl shadow-primary/20 border-none mt-4"
                 >
                   {registerForm.formState.isSubmitting ? <span className="loading loading-spinner" /> : 'Create Account'}
@@ -256,7 +301,7 @@ export default function Login() {
             )}
 
             <div className="mt-8 pt-8 border-t border-base-200 text-center">
-               <p className="text-xs text-base-content/40 leading-relaxed">
+              <p className="text-xs text-base-content/40 leading-relaxed">
                 By continuing, you agree to our <span className="underline cursor-pointer">Terms of Service</span> and <span className="underline cursor-pointer">Privacy Policy</span>.
               </p>
             </div>
