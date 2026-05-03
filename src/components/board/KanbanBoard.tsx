@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { DndContext, DragOverlay, PointerSensor, useSensor, useSensors, rectIntersection } from '@dnd-kit/core';
 import type { DragEndEvent } from '@dnd-kit/core';
 import { useApplicationStore } from '@/store/useApplicationStore';
@@ -13,9 +13,10 @@ const COLUMNS: { id: ApplicationStatus; label: string }[] = [
   { id: 'interview',    label: 'Interview' },
   { id: 'offer',        label: 'Offer' },
   { id: 'rejected',     label: 'Rejected' },
+  { id: 'archived',     label: 'Archived' },
 ];
 
-const VALID_STATUSES: string[] = ['wishlist', 'applied', 'phone_screen', 'interview', 'offer', 'rejected'];
+const VALID_STATUSES: string[] = ['wishlist', 'applied', 'phone_screen', 'interview', 'offer', 'rejected', 'archived'];
 
 function CardSkeleton() {
   return (
@@ -55,15 +56,19 @@ function ColumnSkeleton({ count }: { count: number }) {
 }
 
 // Realistic card counts per column for the skeleton
-const SKELETON_COUNTS = [3, 4, 2, 3, 1, 2];
+const SKELETON_COUNTS = [3, 4, 2, 3, 1];
 
-export default function KanbanBoard() {
-  const { applications, loading, fetchApplications, moveApplication } = useApplicationStore();
+export default function KanbanBoard({ 
+  showRejected = false, 
+  showArchived = false 
+}: { 
+  showRejected?: boolean; 
+  showArchived?: boolean; 
+}) {
+  const { applications, loading, moveApplication } = useApplicationStore();
   const [activeCard, setActiveCard] = useState<JobApplication | null>(null);
 
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 8 } }));
-
-  useEffect(() => { fetchApplications(); }, [fetchApplications]);
 
   const handleDragStart = (event: { active: { id: string | number } }) => {
     setActiveCard(applications.find((a) => a.id === Number(event.active.id)) ?? null);
@@ -96,7 +101,11 @@ export default function KanbanBoard() {
   return (
     <DndContext sensors={sensors} collisionDetection={rectIntersection} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
       <div className="flex gap-3 p-4 h-full overflow-x-auto overflow-y-hidden pb-4 min-w-0">
-        {COLUMNS.map(({ id, label }) => (
+        {COLUMNS.filter(col => {
+          if (col.id === 'rejected') return showRejected;
+          if (col.id === 'archived') return showArchived;
+          return true;
+        }).map(({ id, label }) => (
           <KanbanColumn
             key={id}
             status={id}

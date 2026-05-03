@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { useApplicationStore } from '@/store/useApplicationStore';
 
 export default function FilterBar() {
@@ -8,67 +8,69 @@ export default function FilterBar() {
   const [priority, setPriority] = useState('all');
   const [perPage, setPerPage]   = useState(50);
 
-  const applyFilters = useCallback(
-    (s: string, st: string, p: string, pp: number) => {
-      const timer = setTimeout(() => {
-        fetchApplications({ search: s, status: st, priority: p, per_page: pp });
-      }, 400);
-      return () => clearTimeout(timer);
-    },
-    [fetchApplications]
-  );
+  // Debounce search and filters
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      fetchApplications({ 
+        search, 
+        status: status === 'all' ? '' : status, 
+        priority: priority === 'all' ? '' : priority, 
+        per_page: perPage 
+      });
+    }, 400);
+    return () => clearTimeout(timer);
+  }, [search, status, priority, perPage, fetchApplications]);
 
   return (
-    <div className="flex flex-wrap items-center gap-2 px-4 py-2 bg-base-100 border-b border-base-200">
-      <label className="input input-sm flex items-center gap-2 w-64">
-        <svg className="w-3.5 h-3.5 opacity-50 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-          <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.35-4.35M17 11A6 6 0 115 11a6 6 0 0112 0z" />
-        </svg>
+    <div className="flex flex-wrap items-center gap-3 px-6 py-3 bg-base-100/80 backdrop-blur-md border-b border-base-content/5">
+      <div className="relative group flex-1 min-w-[240px] max-w-xs">
+        <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none text-base-content/20 group-focus-within:text-primary transition-colors">
+          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.35-4.35M17 11A6 6 0 115 11a6 6 0 0112 0z" />
+          </svg>
+        </div>
         <input
           type="text"
-          placeholder="Search..."
+          placeholder="Filter applications..."
           value={search}
-          onChange={(e) => { setSearch(e.target.value); applyFilters(e.target.value, status, priority, perPage); }}
-          className="grow min-w-0"
+          onChange={(e) => setSearch(e.target.value)}
+          className="w-full bg-base-200 border-none rounded-2xl py-2 pl-10 pr-4 text-sm font-medium focus:ring-2 focus:ring-primary/20 placeholder:text-base-content/20 transition-all shadow-sm"
         />
-      </label>
+      </div>
 
-      <select
-        className="select select-sm w-40"
-        value={status}
-        onChange={(e) => { setStatus(e.target.value); applyFilters(search, e.target.value, priority, perPage); }}
-      >
-        <option value="all">All statuses</option>
-        {['wishlist', 'applied', 'phone_screen', 'interview', 'offer', 'rejected'].map((s) => (
-          <option key={s} value={s}>{s.replace('_', ' ').replace(/\b\w/g, (c) => c.toUpperCase())}</option>
-        ))}
-      </select>
+      <div className="flex items-center gap-2">
+        <select
+          className="select select-sm bg-base-200 border-none rounded-xl text-[10px] font-black uppercase tracking-widest focus:ring-2 focus:ring-primary/20 transition-all h-9 shadow-sm"
+          value={status}
+          onChange={(e) => setStatus(e.target.value)}
+        >
+          <option value="all">Status: All</option>
+          {['wishlist', 'applied', 'phone_screen', 'interview', 'offer', 'rejected'].map((s) => (
+            <option key={s} value={s}>{s.replace('_', ' ').toUpperCase()}</option>
+          ))}
+        </select>
 
-      <select
-        className="select select-sm w-40"
-        value={priority}
-        onChange={(e) => { setPriority(e.target.value); applyFilters(search, status, e.target.value, perPage); }}
-      >
-        <option value="all">All priorities</option>
-        <option value="high">High</option>
-        <option value="medium">Medium</option>
-        <option value="low">Low</option>
-      </select>
+        <select
+          className="select select-sm bg-base-200 border-none rounded-xl text-[10px] font-black uppercase tracking-widest focus:ring-2 focus:ring-primary/20 transition-all h-9 shadow-sm"
+          value={priority}
+          onChange={(e) => setPriority(e.target.value)}
+        >
+          <option value="all">Priority: All</option>
+          <option value="high">High</option>
+          <option value="medium">Medium</option>
+          <option value="low">Low</option>
+        </select>
 
-      <select
-        className="select select-sm w-40"
-        value={perPage}
-        onChange={(e) => { 
-          const val = Number(e.target.value);
-          setPerPage(val); 
-          applyFilters(search, status, priority, val); 
-        }}
-      >
-        <option value={20}>20 per page</option>
-        <option value={50}>50 per page</option>
-        <option value={100}>100 per page</option>
-        <option value={200}>200 per page</option>
-      </select>
+        <select
+          className="select select-sm bg-base-200 border-none rounded-xl text-[10px] font-black uppercase tracking-widest focus:ring-2 focus:ring-primary/20 transition-all h-9 shadow-sm"
+          value={perPage}
+          onChange={(e) => setPerPage(Number(e.target.value))}
+        >
+          <option value={20}>Show 20</option>
+          <option value={50}>Show 50</option>
+          <option value={100}>Show 100</option>
+        </select>
+      </div>
     </div>
   );
 }

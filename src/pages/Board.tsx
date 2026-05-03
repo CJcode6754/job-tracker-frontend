@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import KanbanBoard from '@/components/board/KanbanBoard';
 import FilterBar from '@/components/board/FilterBar';
 import ApplicationForm from '@/components/forms/ApplicationForm';
@@ -14,7 +14,16 @@ export default function Board() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { exportToExcel, downloadTemplate } = useExport();
   const { importFromExcel } = useImport();
-  const { applications, fetchApplications } = useApplicationStore();
+  const [showRejected, setShowRejected] = useState(false);
+  const [showArchived, setShowArchived] = useState(false);
+  const { applications, pagination, loading, fetchApplications, loadMore } = useApplicationStore();
+
+  useEffect(() => {
+    fetchApplications({
+      show_rejected: showRejected ? 1 : 0,
+      show_archived: showArchived ? 1 : 0
+    });
+  }, [showRejected, showArchived, fetchApplications]);
 
   const handleExport = () => {
     if (applications.length === 0) {
@@ -39,79 +48,87 @@ export default function Board() {
   };
 
   return (
-    <div className="flex flex-col h-screen overflow-hidden bg-base-200">
+    <div className="flex flex-col h-screen overflow-hidden bg-base-200/50">
       <Navbar />
 
-      {/* Toolbar */}
-      <div className="flex items-center justify-between px-4 py-2.5 bg-base-100 border-b border-base-200 shrink-0">
+      {/* Clean Header */}
+      <div className="px-8 py-6 bg-base-100 border-b border-base-content/5 flex items-center justify-between">
         <div>
-          <p className="text-sm font-semibold">Applications</p>
-          <p className="text-xs text-base-content/50 mt-0.5 hidden sm:block">Drag cards to update status</p>
+          <h1 className="text-2xl font-black tracking-tight">Board</h1>
+          <div className="flex items-center gap-3 mt-0.5">
+            <span className="text-[10px] font-bold text-base-content/30 uppercase tracking-[0.2em]">
+              {applications.length} {pagination && pagination.total > applications.length ? `/ ${pagination.total}` : ''} Applications
+            </span>
+            {pagination && pagination.current_page < pagination.last_page && (
+              <button 
+                onClick={() => loadMore()} 
+                disabled={loading}
+                className="text-[10px] font-black uppercase tracking-widest text-primary hover:opacity-70 transition-opacity"
+              >
+                {loading ? '...' : 'Load More'}
+              </button>
+            )}
+            <div className="w-px h-3 bg-base-content/10 mx-1" />
+            <div className="flex items-center gap-4">
+              <button 
+                onClick={() => setShowRejected(!showRejected)}
+                className={`text-[10px] font-black uppercase tracking-widest transition-colors ${showRejected ? 'text-error' : 'text-base-content/30 hover:text-base-content/50'}`}
+              >
+                {showRejected ? 'Hide Rejected' : 'Show Rejected'}
+              </button>
+              <button 
+                onClick={() => setShowArchived(!showArchived)}
+                className={`text-[10px] font-black uppercase tracking-widest transition-colors ${showArchived ? 'text-primary' : 'text-base-content/30 hover:text-base-content/50'}`}
+              >
+                {showArchived ? 'Hide Archive' : 'Show Archive'}
+              </button>
+            </div>
+          </div>
         </div>
-        <div className="flex items-center gap-2">
-          {/* Template */}
-          <button onClick={downloadTemplate} className="btn btn-ghost btn-sm gap-1.5" title="Download import template">
-            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-            </svg>
-            <span className="hidden sm:inline">Template</span>
-          </button>
 
-          {/* Import */}
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept=".xlsx,.xls"
-            className="hidden"
-            onChange={handleImport}
-          />
-          <button
-            onClick={() => fileInputRef.current?.click()}
-            disabled={importing}
-            className="btn btn-ghost btn-sm gap-1.5"
-            title="Import CSV"
+        <div className="flex items-center gap-3">
+          <div className="hidden lg:flex items-center bg-base-200/50 rounded-xl p-1 border border-base-content/5">
+            <button onClick={downloadTemplate} className="btn btn-ghost btn-xs text-[9px] font-black uppercase tracking-widest px-3">Template</button>
+            <button onClick={() => fileInputRef.current?.click()} disabled={importing} className="btn btn-ghost btn-xs text-[9px] font-black uppercase tracking-widest px-3 border-x border-base-content/5">
+              {importing ? '...' : 'Import'}
+            </button>
+            <button onClick={handleExport} className="btn btn-ghost btn-xs text-[9px] font-black uppercase tracking-widest px-3">Export</button>
+          </div>
+
+          <button 
+            onClick={() => setShowForm(true)} 
+            className="btn btn-primary btn-sm h-10 px-6 rounded-xl font-bold shadow-lg shadow-primary/20 gap-2"
           >
-            {importing
-              ? <span className="loading loading-spinner loading-xs" />
-              : <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
-                </svg>
-            }
-            <span className="hidden sm:inline">{importing ? 'Importing...' : 'Import'}</span>
-          </button>
-
-          {/* Export */}
-          <button onClick={handleExport} className="btn btn-ghost btn-sm gap-1.5" title="Export CSV">
-            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-            </svg>
-            <span className="hidden sm:inline">Export</span>
-          </button>
-
-          <div className="w-px h-4 bg-base-200" />
-
-          {/* Add */}
-          <button onClick={() => setShowForm(true)} className="btn btn-primary btn-sm gap-1.5">
-            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
             </svg>
-            <span className="hidden sm:inline">Add Application</span>
-            <span className="sm:hidden">Add</span>
+            Add New
           </button>
         </div>
       </div>
 
-      <div className="shrink-0"><FilterBar /></div>
-      <div className="flex-1 overflow-hidden"><KanbanBoard /></div>
+      <input ref={fileInputRef} type="file" accept=".xlsx,.xls" className="hidden" onChange={handleImport} />
 
-      {/* Modal */}
+      <div className="flex-1 flex flex-col overflow-hidden">
+        <div className="bg-base-100/50 border-b border-base-content/5 backdrop-blur-md">
+          <FilterBar />
+        </div>
+        <div className="flex-1 overflow-hidden relative">
+          <KanbanBoard showRejected={showRejected} showArchived={showArchived} />
+        </div>
+      </div>
+
+      {/* Modal Overhaul */}
       {showForm && (
-        <div className="modal modal-open">
-          <div className="modal-box w-full max-w-lg p-0 max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between px-5 py-4 border-b border-base-200 sticky top-0 bg-base-100 z-10">
-              <h3 className="font-semibold text-sm">New Application</h3>
-              <button onClick={() => setShowForm(false)} className="btn btn-ghost btn-xs btn-circle">
-                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+        <div className="modal modal-open backdrop-blur-sm bg-base-300/40">
+          <div className="modal-box w-full max-w-2xl p-0 bg-base-100 rounded-3xl shadow-2xl border border-base-content/5 overflow-hidden">
+            <div className="flex items-center justify-between px-8 py-6 border-b border-base-content/5 bg-base-200/50">
+              <div>
+                <h3 className="font-black text-xl tracking-tight">New Application</h3>
+                <p className="text-[10px] font-bold text-base-content/40 uppercase tracking-widest mt-1">Add to your pipeline</p>
+              </div>
+              <button onClick={() => setShowForm(false)} className="btn btn-ghost btn-sm btn-circle opacity-40 hover:opacity-100">
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
                 </svg>
               </button>

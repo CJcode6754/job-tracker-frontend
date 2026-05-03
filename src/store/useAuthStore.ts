@@ -16,7 +16,10 @@ function scheduleRefresh(refreshFn: () => Promise<void>) {
 }
 
 function clearRefreshTimer() {
-  if (refreshTimer) { clearTimeout(refreshTimer); refreshTimer = null; }
+  if (refreshTimer) {
+    clearTimeout(refreshTimer);
+    refreshTimer = null;
+  }
 }
 
 interface AuthStore {
@@ -34,11 +37,15 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
   loading: true,
 
   fetchUser: async () => {
+    set({ loading: true });
     try {
       const { data } = await api.get('/me');
-      set({ user: data, loading: false });
-      if (data) {
+      // data should be the user object or null
+      if (data && typeof data === 'object' && data.id) {
+        set({ user: data, loading: false });
         scheduleRefresh(() => get().refreshToken());
+      } else {
+        set({ user: null, loading: false });
       }
     } catch {
       set({ user: null, loading: false });
@@ -72,3 +79,8 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
     }
   },
 }));
+
+export function clearAuth() {
+  clearRefreshTimer();
+  useAuthStore.setState({ user: null, loading: false });
+}

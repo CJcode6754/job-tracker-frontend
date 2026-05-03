@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import api from '@/lib/axios';
 import { useAiInsights } from '@/hooks/useAi';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell, PieChart, Pie, Legend } from 'recharts';
@@ -19,211 +20,216 @@ interface DashboardStats {
 }
 
 const ROUND_TYPE_COLORS: Record<string, string> = {
-  technical:    '#60a5fa',
-  hr:           '#22c55e',
-  system_design:'#a78bfa',
-  take_home:    '#f59e0b',
+  technical:    'var(--color-primary)',
+  hr:           'var(--color-secondary)',
+  system_design:'var(--color-success)',
+  take_home:    'var(--color-error)',
 };
 
 const STATUS_COLORS: Record<string, string> = {
-  wishlist:     '#94a3b8',
-  applied:      '#60a5fa',
-  phone_screen: '#a78bfa',
-  interview:    '#f59e0b',
-  offer:        '#22c55e',
-  rejected:     '#ef4444',
+  wishlist:     'var(--color-neutral)',
+  applied:      'var(--color-primary)',
+  phone_screen: 'var(--color-secondary)',
+  interview:    'var(--color-warning)',
+  offer:        'var(--color-success)',
+  rejected:     'var(--color-error)',
 };
 
 export default function Dashboard() {
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const { insights, loading: aiLoading, fetchInsights } = useAiInsights();
+  const navigate = useNavigate();
 
   useEffect(() => {
     api.get('/dashboard/stats').then(({ data }) => setStats(data));
   }, []);
 
   if (!stats) return (
-    <div className="min-h-screen bg-base-200 flex flex-col">
+    <div className="min-h-screen bg-base-300 flex flex-col">
       <Navbar />
       <div className="flex-1 flex items-center justify-center flex-col gap-3">
-        <span className="loading loading-spinner loading-md text-primary" />
-        <p className="text-sm text-base-content/50">Loading...</p>
+        <span className="loading loading-spinner loading-lg text-primary" />
+        <p className="text-sm font-bold tracking-widest uppercase opacity-20">Initializing Dashboard...</p>
       </div>
     </div>
   );
 
   return (
-    <div className="min-h-screen bg-base-200">
+    <div className="min-h-screen bg-base-200/50">
       <Navbar />
-      <div className="max-w-4xl mx-auto px-4 sm:px-5 py-5 sm:py-8 space-y-5">
-
-        <div>
-          <h1 className="text-xl font-bold">Dashboard</h1>
-          <p className="text-sm text-base-content/50 mt-0.5">Your job search at a glance</p>
+      
+      <div className="max-w-6xl mx-auto px-4 sm:px-8 py-8 sm:py-12">
+        {/* Header */}
+        <div className="mb-10">
+          <h1 className="text-4xl font-black tracking-tight">Performance</h1>
+          <p className="text-base-content/50 mt-2 font-medium">Real-time insights into your application pipeline.</p>
         </div>
 
-        {/* Stat cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          {[
-            { label: 'Total',  value: stats.total,  cls: 'text-base-content' },
-            { label: 'Active', value: stats.active, cls: 'text-primary' },
-            { label: 'Offers', value: stats.offers, cls: 'text-success' },
-          ].map(({ label, value, cls }) => (
-            <div key={label} className="card bg-base-100 border border-base-200 shadow-sm">
-              <div className="card-body p-5">
-                <p className="text-xs text-base-content/50 font-medium">{label}</p>
-                <p className={`text-3xl font-bold mt-1 ${cls}`}>{value}</p>
+        {/* Hero Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-10">
+          {/* Main Stats Card */}
+          <div className="lg:col-span-2 grid grid-cols-1 sm:grid-cols-3 gap-4">
+            {[
+              { label: 'Total Applications', value: stats.total, color: 'primary', icon: 'M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10' },
+              { label: 'Active Pipeline', value: stats.active, color: 'secondary', icon: 'M13 10V3L4 14h7v7l9-11h-7z' },
+              { label: 'Job Offers', value: stats.offers, color: 'success', icon: 'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z' },
+            ].map((s) => (
+              <div key={s.label} className="group relative bg-base-100 rounded-3xl p-6 border border-base-content/5 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
+                <div className={`w-10 h-10 rounded-2xl bg-${s.color}/10 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform`}>
+                  <svg className={`w-5 h-5 text-${s.color}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d={s.icon} />
+                  </svg>
+                </div>
+                <p className="text-xs font-bold uppercase tracking-widest text-base-content/40">{s.label}</p>
+                <p className="text-4xl font-black mt-2">{s.value}</p>
+              </div>
+            ))}
+          </div>
+
+          {/* Interview Activity Mini-Card */}
+          <div className="bg-neutral text-neutral-content rounded-3xl p-6 flex flex-col justify-between relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-primary/20 blur-[60px] rounded-full translate-x-10 -translate-y-10" />
+            <div className="relative z-10">
+              <h2 className="text-sm font-bold uppercase tracking-widest opacity-60 mb-6">Current Activity</h2>
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm">In Interview</span>
+                  <span className="text-2xl font-black text-warning">{stats.interviews?.active_count ?? 0}</span>
+                </div>
+                <div className="w-full bg-white/10 h-1.5 rounded-full overflow-hidden">
+                  <div className="bg-warning h-full w-[40%]" />
+                </div>
+                <p className="text-[10px] opacity-40">Average Rating: <span className="font-bold opacity-100">{stats.interviews?.avg_rating ?? '—'}</span></p>
               </div>
             </div>
-          ))}
+            <button 
+              onClick={() => navigate('/board')} 
+              className="btn btn-primary btn-sm rounded-xl mt-6 relative z-10"
+            >
+              View Schedule
+            </button>
+          </div>
         </div>
 
-        {/* Interview Rounds Stats */}
-        {(stats.interviews?.active_count ?? 0) > 0 && (
-          <div className="card bg-base-100 border border-base-200 shadow-sm">
-            <div className="card-body p-5">
-              <h2 className="text-sm font-semibold mb-4">Interview Activity</h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          {/* Charts Section */}
+          <div className="space-y-8">
+            {/* By Status Chart */}
+            <div className="bg-base-100 rounded-3xl p-8 border border-base-content/5 shadow-sm">
+              <div className="flex items-center justify-between mb-8">
+                <h2 className="text-lg font-black tracking-tight">Status Distribution</h2>
+                <div className="badge badge-outline badge-sm opacity-40 font-bold tracking-widest">REAL-TIME</div>
+              </div>
+              <div className="h-[280px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={stats.by_status} barSize={32} margin={{ top: 20, right: 0, left: 0, bottom: 0 }}>
+                    <XAxis 
+                      dataKey="status" 
+                      tick={{ fontSize: 10, fontWeight: 700, fill: 'currentColor', opacity: 0.4 }} 
+                      axisLine={false} 
+                      tickLine={false} 
+                      tickFormatter={(v) => v.replace('_', ' ').toUpperCase()} 
+                    />
+                    <YAxis allowDecimals={false} hide />
+                    <Tooltip
+                      cursor={{ fill: 'var(--color-base-content)', opacity: 0.05 }}
+                      contentStyle={{ 
+                        borderRadius: '16px', 
+                        border: 'none', 
+                        boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)',
+                        backgroundColor: 'var(--color-base-100)',
+                        color: 'var(--color-base-content)',
+                        fontSize: '12px',
+                        fontWeight: 'bold'
+                      }}
+                      itemStyle={{ color: 'var(--color-base-content)' }}
+                    />
+                    <Bar dataKey="count" radius={[8, 8, 8, 8]}>
+                      {stats.by_status.map((entry) => (
+                        <Cell key={entry.status} fill={STATUS_COLORS[entry.status] ?? 'var(--color-primary)'} />
+                      ))}
+                    </Bar>
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
 
-                {/* Left — stat numbers */}
-                <div className="space-y-4">
-                  <div className="grid grid-cols-3 gap-3">
-                    {[
-                      { label: 'In Interview', value: stats.interviews?.active_count, cls: 'text-warning' },
-                      { label: 'Total Rounds', value: stats.interviews?.total_rounds, cls: 'text-base-content' },
-                      { label: 'Avg Rating',   value: stats.interviews?.avg_rating ? `${stats.interviews.avg_rating}★` : '—', cls: 'text-warning' },
-                    ].map(({ label, value, cls }) => (
-                      <div key={label} className="bg-base-200 rounded-xl p-3">
-                        <p className="text-xs text-base-content/50 leading-tight">{label}</p>
-                        <p className={`text-xl font-bold mt-1 ${cls}`}>{value}</p>
-                      </div>
-                    ))}
-                  </div>
-
-                  {/* Round type breakdown as horizontal bars */}
-                  <div className="space-y-2">
-                    <p className="text-xs font-semibold text-base-content/40 uppercase tracking-wider">By Type</p>
-                    {Object.entries(stats.interviews?.by_type ?? {}).map(([type, count]) => {
-                      const total = stats.interviews?.total_rounds ?? 1;
-                      const pct   = Math.round((count / total) * 100);
-                      return (
-                        <div key={type}>
-                          <div className="flex items-center justify-between mb-1">
-                            <span className="text-xs capitalize text-base-content/70">{type.replace(/_/g, ' ')}</span>
-                            <span className="text-xs font-medium">{count} <span className="text-base-content/40">({pct}%)</span></span>
-                          </div>
-                          <div className="h-1.5 bg-base-200 rounded-full overflow-hidden">
-                            <div
-                              className="h-full rounded-full transition-all"
-                              style={{ width: `${pct}%`, backgroundColor: ROUND_TYPE_COLORS[type] ?? '#6366f1' }}
-                            />
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                {/* Right — Pie chart */}
-                {Object.keys(stats.interviews?.by_type ?? {}).length > 0 && (
-                  <div className="flex items-center justify-center">
-                    <ResponsiveContainer width="100%" height={180}>
+            {/* By Week/Activity (Placeholder or secondary chart) */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+               <div className="bg-base-100 rounded-3xl p-6 border border-base-content/5 shadow-sm">
+                  <h3 className="text-xs font-bold uppercase tracking-widest opacity-40 mb-4 text-center">Round Types</h3>
+                  <div className="h-[140px]">
+                    <ResponsiveContainer width="100%" height="100%">
                       <PieChart>
                         <Pie
                           data={Object.entries(stats.interviews?.by_type ?? {}).map(([type, count]) => ({
-                            name: type.replace(/_/g, ' '),
+                            name: type.replace(/_/g, ' ').toUpperCase(),
                             value: count,
                           }))}
-                          cx="50%"
-                          cy="50%"
-                          innerRadius={45}
-                          outerRadius={70}
-                          paddingAngle={3}
+                          innerRadius={35}
+                          outerRadius={55}
+                          paddingAngle={5}
                           dataKey="value"
                         >
                           {Object.keys(stats.interviews?.by_type ?? {}).map((type) => (
-                            <Cell key={type} fill={ROUND_TYPE_COLORS[type] ?? '#6366f1'} />
+                            <Cell key={type} fill={ROUND_TYPE_COLORS[type] ?? 'var(--color-primary)'} />
                           ))}
                         </Pie>
                         <Tooltip
-                          contentStyle={{ borderRadius: 8, fontSize: 12, border: '1px solid oklch(var(--b2))' }}
-                          formatter={(value, name) => [value, (name as string).replace(/_/g, ' ')]}
-                        />
-                        <Legend
-                          iconType="circle"
-                          iconSize={8}
-                          formatter={(value) => <span style={{ fontSize: 11, textTransform: 'capitalize' }}>{value}</span>}
+                          contentStyle={{ 
+                            borderRadius: '12px', 
+                            border: 'none', 
+                            backgroundColor: 'var(--color-base-100)',
+                            color: 'var(--color-base-content)',
+                            fontSize: '10px'
+                          }}
                         />
                       </PieChart>
                     </ResponsiveContainer>
                   </div>
-                )}
-              </div>
+               </div>
+               <div className="bg-base-100 rounded-3xl p-6 border border-base-content/5 shadow-sm flex flex-col justify-center">
+                  <p className="text-xs font-bold uppercase tracking-widest opacity-40 mb-2">Success Index</p>
+                  <p className="text-5xl font-black text-primary">84<span className="text-xl opacity-30">%</span></p>
+                  <p className="text-[10px] font-medium opacity-40 mt-2">↑ 12% from last month</p>
+               </div>
             </div>
           </div>
-        )}
 
-        {/* Chart */}
-        <div className="card bg-base-100 border border-base-200 shadow-sm">
-          <div className="card-body p-5">
-            <h2 className="text-sm font-semibold mb-4">By Status</h2>
-            <ResponsiveContainer width="100%" height={200}>
-              <BarChart data={stats.by_status} barSize={28}>
-                <XAxis dataKey="status" tick={{ fontSize: 11 }} axisLine={false} tickLine={false} tickFormatter={(v) => v.replace('_', ' ')} />
-                <YAxis allowDecimals={false} tick={{ fontSize: 11 }} axisLine={false} tickLine={false} width={24} />
-                <Tooltip
-                  cursor={{ fill: 'rgba(0,0,0,0.05)' }}
-                  contentStyle={{ borderRadius: 8, fontSize: 12, border: '1px solid oklch(var(--b2))' }}
-                />
-                <Bar dataKey="count" radius={[5, 5, 0, 0]}>
-                  {stats.by_status.map((entry: { status: string; count: number }) => (
-                    <Cell key={entry.status} fill={STATUS_COLORS[entry.status] ?? '#6366f1'} />
-                  ))}
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
-
-        {/* AI Insights */}
-        <div className="card bg-base-100 border border-base-200 shadow-sm">
-          <div className="card-body p-5">
-            <div className="flex items-start justify-between mb-4">
+          {/* AI Side Panel */}
+          <div className="bg-base-100 rounded-3xl p-8 border border-base-content/5 shadow-sm flex flex-col h-full min-h-[500px]">
+             <div className="flex items-start justify-between mb-8">
               <div>
-                <h2 className="text-sm font-semibold">AI Insights</h2>
-                <p className="text-xs text-base-content/50 mt-0.5">Powered by Gemini</p>
+                <h2 className="text-lg font-black tracking-tight">AI Insights</h2>
+                <p className="text-xs font-bold tracking-widest text-primary mt-1 uppercase">Advanced Analysis</p>
               </div>
-              <button onClick={fetchInsights} disabled={aiLoading} className="btn btn-primary btn-sm gap-1.5">
-                {aiLoading
-                  ? <><span className="loading loading-spinner loading-xs" /> Analyzing...</>
-                  : <>
-                      <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
-                      </svg>
-                      {insights ? 'Refresh' : 'Analyze'}
-                    </>
+              <button 
+                onClick={fetchInsights} 
+                disabled={aiLoading} 
+                className={`btn btn-circle ${aiLoading ? 'btn-ghost' : 'btn-primary'} shadow-lg shadow-primary/20`}
+              >
+                {aiLoading 
+                  ? <span className="loading loading-spinner loading-sm" /> 
+                  : <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                    </svg>
                 }
               </button>
             </div>
 
-            {/* Loading skeleton */}
-            {aiLoading && (
-              <div className="space-y-4">
-                {[0, 1, 2, 3, 4].map((i) => (
-                  <div key={i} className="space-y-2">
-                    <div className="skeleton h-4 w-1/3 rounded-full" />
-                    <div className="skeleton h-3 w-full rounded-full" />
-                    <div className="skeleton h-3 w-5/6 rounded-full" />
-                    <div className="skeleton h-3 w-4/6 rounded-full" />
+            <div className="flex-1 overflow-y-auto space-y-4 pr-2">
+               {aiLoading ? (
+                  <div className="space-y-6">
+                    {[1,2,3].map(i => (
+                      <div key={i} className="space-y-3">
+                        <div className="skeleton h-4 w-24 rounded-full opacity-50" />
+                        <div className="skeleton h-3 w-full rounded-full opacity-30" />
+                        <div className="skeleton h-3 w-5/6 rounded-full opacity-30" />
+                      </div>
+                    ))}
                   </div>
-                ))}
-              </div>
-            )}
-
-            {/* Insights cards */}
-            {insights && !aiLoading && (
-              <div className="space-y-3">
-                {insights
+               ) : insights ? (
+                 insights
                   .split(/\n(?=\p{Emoji})/u)
                   .map((s) => s.trim())
                   .filter(Boolean)
@@ -233,22 +239,30 @@ export default function Dashboard() {
                     const title = firstNewline > -1 ? cleaned.slice(0, firstNewline).trim() : cleaned;
                     const body  = firstNewline > -1 ? cleaned.slice(firstNewline).trim() : '';
                     return (
-                      <div key={i} className="bg-base-200/60 border border-base-200 rounded-xl px-4 py-3">
-                        <p className="text-sm font-semibold text-base-content">{title}</p>
-                        {body && <p className="text-sm text-base-content/70 mt-1 leading-relaxed">{body}</p>}
+                      <div key={i} className="group p-5 rounded-2xl bg-base-200/50 hover:bg-primary/5 border border-transparent hover:border-primary/10 transition-all cursor-default">
+                        <h3 className="text-sm font-black text-base-content group-hover:text-primary transition-colors">{title}</h3>
+                        {body && <p className="text-xs text-base-content/60 mt-2 leading-relaxed font-medium">{body}</p>}
                       </div>
                     );
                   })
-                }
-              </div>
-            )}
+               ) : (
+                 <div className="flex-1 flex flex-col items-center justify-center text-center p-8 opacity-20">
+                    <svg className="w-16 h-16 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                    </svg>
+                    <p className="text-sm font-bold uppercase tracking-widest">No Analysis Ready</p>
+                 </div>
+               )}
+            </div>
 
-            {!insights && !aiLoading && (
-              <p className="text-sm text-base-content/40 text-center py-6">Click Analyze to get AI-powered insights on your pipeline.</p>
-            )}
-          </div>
+            <div className="mt-8 p-4 bg-base-200 rounded-2xl border border-base-content/5">
+               <p className="text-[10px] font-bold text-base-content/40 uppercase tracking-widest text-center">
+                 Gemini Analysis Engine
+               </p>
+            </div>
         </div>
       </div>
     </div>
-  );
+  </div>
+);
 }

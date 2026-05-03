@@ -13,7 +13,10 @@ interface ApplicationStore {
   applications: JobApplication[];
   loading: boolean;
   pagination: PaginationMeta | null;
-  fetchApplications: (params?: Record<string, string | number>) => Promise<void>;
+  filters: Record<string, string | number | boolean>;
+  fetchApplications: (params?: Record<string, string | number | boolean>) => Promise<void>;
+  setFilters: (filters: Record<string, string | number | boolean>) => void;
+  loadMore: () => Promise<void>;
   addApplication: (data: Record<string, unknown>) => Promise<void>;
   updateApplication: (id: number, updates: Record<string, unknown>) => Promise<void>;
   deleteApplication: (id: number) => Promise<void>;
@@ -24,20 +27,41 @@ export const useApplicationStore = create<ApplicationStore>((set, get) => ({
   applications: [],
   loading: false,
   pagination: null,
+  filters: {},
 
   fetchApplications: async (params = {}) => {
+    const newFilters = { ...get().filters, ...params };
+    set({ loading: true, filters: newFilters });
+    try {
+      const { data } = await api.get('/applications', { params: newFilters });
+      const applications = data.data || data;
+      const pagination = data.data ? { ...data, data: undefined } : null;
+      set({ applications, pagination, loading: false });
+    } catch {
+      set({ loading: false });
+    }
+  },
+
+  setFilters: (newFilters) => {
+    get().fetchApplications(newFilters);
+  },
+
+  loadMore: async () => {
+    const { pagination, loading } = get();
+    if (loading || !pagination || pagination.current_page >= pagination.last_page) return;
+    
     set({ loading: true });
     try {
-      const { data } = await api.get('/applications', { 
-        params: {
-          per_page: 200,
-          ...params,
-        }
-      });
-      // Handle paginated response
-      const applications = data.data || data;
-      const pagination = data.meta || null;
-      set({ applications, pagination, loading: false });
+      const nextPage = pagination.current_page + 1;
+      const { data } = await api.get('/applications', { params: { page: nextPage } });
+      const newApps = data.data || [];
+      const newPagination = { ...data, data: undefined };
+      
+      set((state) => ({ 
+        applications: [...state.applications, ...newApps],
+        pagination: newPagination,
+        loading: false 
+      }));
     } catch {
       set({ loading: false });
     }

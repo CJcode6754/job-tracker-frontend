@@ -4,7 +4,8 @@ export type ApplicationStatus =
   | 'phone_screen'
   | 'interview'
   | 'offer'
-  | 'rejected';
+  | 'rejected'
+  | 'archived';
 
 export type Priority = 'low' | 'medium' | 'high';
 

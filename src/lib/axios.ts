@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { clearAuth } from '@/store/useAuthStore';
 
 const api = axios.create({
   baseURL: '/api',
@@ -13,11 +14,16 @@ const api = axios.create({
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
-      if (window.location.pathname !== '/login') {
-        window.location.href = '/login';
-      }
+    const status = error.response?.status;
+
+    if (status === 401) {
+      clearAuth();
+    } else if (status === 403) {
+      import('sonner').then(({ toast }) => toast.error("You don't have permission to do that."));
+    } else if (status >= 500) {
+      import('sonner').then(({ toast }) => toast.error("Server error. Please try again later."));
     }
+
     return Promise.reject(error);
   }
 );
