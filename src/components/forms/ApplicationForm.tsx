@@ -2,6 +2,7 @@ import { useState, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import type { Resolver } from 'react-hook-form';
 import { useApplicationStore } from '@/store/useApplicationStore';
 import { useJobTagger } from '@/hooks/useAi';
 import { toast } from 'sonner';
@@ -67,9 +68,12 @@ export default function ApplicationForm({ onClose, defaultValues, applicationId 
   const roleRef    = useRef<HTMLInputElement>(null);
 
   const { register, handleSubmit, setValue, watch, formState: { errors, isSubmitting } } = useForm<FormData>({
-    resolver: zodResolver(schema),
+    resolver: zodResolver(schema) as Resolver<FormData>,
     defaultValues: defaultValues ?? { status: 'wishlist', priority: 'medium', salary_currency: 'PHP' },
   });
+
+  const { ref: companyFieldRef, ...companyRegisterRest } = register('company');
+  const { ref: roleFieldRef,    ...roleRegisterRest    } = register('role');
 
   const priority       = watch('priority');
   const status         = watch('status');
@@ -79,23 +83,29 @@ export default function ApplicationForm({ onClose, defaultValues, applicationId 
   const onSubmit = async (data: FormData) => {
     try {
       if (applicationId) {
-        await updateApplication(applicationId, data);
+        await updateApplication(applicationId, data as Record<string, unknown>);
         toast.success('Application updated!');
       } else {
-        await addApplication(data);
+        await addApplication(data as Record<string, unknown>);
         toast.success('Application added!');
       }
       onClose();
-    } catch (e: any) {
-      const errs = e?.response?.data?.errors;
-      const msg  = e?.response?.data?.message;
+    } catch (e: unknown) {
+      const err = e as { response?: { data?: { errors?: Record<string, string[]>; message?: string } } };
+      const errs = err?.response?.data?.errors;
+      const msg  = err?.response?.data?.message;
       toast.error(errs ? Object.values(errs).flat().join(', ') : (msg ?? 'Something went wrong.'));
     }
   };
 
-  const onError = (errs: typeof errors) => {
-    if (errs.company) { companyRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' }); companyRef.current?.focus(); }
-    else if (errs.role) { roleRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' }); roleRef.current?.focus(); }
+  const onError = () => {
+    if (errors.company) {
+      companyRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      companyRef.current?.focus();
+    } else if (errors.role) {
+      roleRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      roleRef.current?.focus();
+    }
   };
 
   const applyTags = () => {
@@ -105,12 +115,17 @@ export default function ApplicationForm({ onClose, defaultValues, applicationId 
     if (tags.location)   setValue('location', tags.location, { shouldValidate: false });
     if (tags.estimated_priority) setValue('priority', tags.estimated_priority, { shouldValidate: false });
     if (tags.remote_policy) {
-      const map: Record<string, string> = { 'remote': 'remote', 'hybrid': 'hybrid', 'on-site': 'onsite', 'onsite': 'onsite' };
+      const map: Record<string, 'remote' | 'onsite' | 'hybrid'> = {
+        'remote': 'remote', 'hybrid': 'hybrid', 'on-site': 'onsite', 'onsite': 'onsite',
+      };
       const mapped = map[tags.remote_policy.toLowerCase()];
       if (mapped) setValue('work_type', mapped, { shouldValidate: false });
     }
     if (tags.employment_type) {
-      const map: Record<string, string> = { 'full-time': 'full_time', 'part-time': 'part_time', 'contract': 'contract', 'freelance': 'freelance', 'internship': 'internship' };
+      const map: Record<string, 'full_time' | 'part_time' | 'contract' | 'internship' | 'freelance'> = {
+        'full-time': 'full_time', 'part-time': 'part_time',
+        'contract': 'contract', 'freelance': 'freelance', 'internship': 'internship',
+      };
       const mapped = map[tags.employment_type.toLowerCase()];
       if (mapped) setValue('employment_type', mapped, { shouldValidate: false });
     }
@@ -211,9 +226,9 @@ export default function ApplicationForm({ onClose, defaultValues, applicationId 
             <fieldset className="fieldset col-span-2 sm:col-span-1">
               <legend className="fieldset-legend">Company <RequiredStar /></legend>
               <input
-                ref={companyRef}
+                ref={(el) => { companyFieldRef(el); (companyRef as React.MutableRefObject<HTMLInputElement | null>).current = el; }}
                 className={`input input-bordered w-full ${errors.company ? 'input-error' : ''}`}
-                {...register('company')}
+                {...companyRegisterRest}
                 placeholder="e.g. Acme Corp"
                 autoFocus
               />
@@ -223,9 +238,9 @@ export default function ApplicationForm({ onClose, defaultValues, applicationId 
             <fieldset className="fieldset col-span-2 sm:col-span-1">
               <legend className="fieldset-legend">Role <RequiredStar /></legend>
               <input
-                ref={roleRef}
+                ref={(el) => { roleFieldRef(el); (roleRef as React.MutableRefObject<HTMLInputElement | null>).current = el; }}
                 className={`input input-bordered w-full ${errors.role ? 'input-error' : ''}`}
-                {...register('role')}
+                {...roleRegisterRest}
                 placeholder="e.g. Frontend Engineer"
               />
               <FieldError message={errors.role?.message} />

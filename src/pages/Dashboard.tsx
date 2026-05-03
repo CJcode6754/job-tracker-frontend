@@ -79,7 +79,7 @@ export default function Dashboard() {
         </div>
 
         {/* Interview Rounds Stats */}
-        {stats.interviews?.active_count > 0 && (
+        {(stats.interviews?.active_count ?? 0) > 0 && (
           <div className="card bg-base-100 border border-base-200 shadow-sm">
             <div className="card-body p-5">
               <h2 className="text-sm font-semibold mb-4">Interview Activity</h2>
@@ -228,9 +228,10 @@ export default function Dashboard() {
                   .map((s) => s.trim())
                   .filter(Boolean)
                   .map((block, i) => {
-                    const firstNewline = block.indexOf('\n');
-                    const title  = firstNewline > -1 ? block.slice(0, firstNewline).trim() : block;
-                    const body   = firstNewline > -1 ? block.slice(firstNewline).trim() : '';
+                    const cleaned = block.replace(/^#{1,6}\s*/gm, '');
+                    const firstNewline = cleaned.indexOf('\n');
+                    const title = firstNewline > -1 ? cleaned.slice(0, firstNewline).trim() : cleaned;
+                    const body  = firstNewline > -1 ? cleaned.slice(firstNewline).trim() : '';
                     return (
                       <div key={i} className="bg-base-200/60 border border-base-200 rounded-xl px-4 py-3">
                         <p className="text-sm font-semibold text-base-content">{title}</p>
@@ -243,10 +244,7 @@ export default function Dashboard() {
             )}
 
             {!insights && !aiLoading && (
-              <div className="text-center py-8">
-                <div className="text-3xl mb-2">🔍</div>
-                <p className="text-sm text-base-content/50">Click Analyze to get AI-powered insights on your pipeline.</p>
-              </div>
+              <p className="text-sm text-base-content/40 text-center py-6">Click Analyze to get AI-powered insights on your pipeline.</p>
             )}
           </div>
         </div>

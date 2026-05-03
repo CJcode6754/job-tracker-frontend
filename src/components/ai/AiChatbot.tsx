@@ -81,15 +81,23 @@ export default function AiChatbot() {
       {/* Floating toggle button */}
       <button
         onClick={() => setIsOpen((o) => !o)}
-        className="fixed bottom-6 right-6 w-14 h-14 btn btn-primary rounded-full shadow-lg flex items-center justify-center text-2xl z-50"
+        className="fixed bottom-6 right-6 w-14 h-14 btn btn-primary rounded-full shadow-lg flex items-center justify-center z-50"
         title="AI Assistant"
       >
-        {isOpen ? '✕' : '🤖'}
+        {isOpen ? (
+          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        ) : (
+          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+          </svg>
+        )}
       </button>
 
       {/* Chat window */}
       {isOpen && (
-        <div className="fixed bottom-24 right-6 w-96 max-w-[calc(100vw-3rem)] h-[560px] bg-base-100 rounded-2xl shadow-2xl flex flex-col border border-base-200 z-50">
+        <div className="fixed bottom-24 right-6 w-96 max-w-[calc(100vw-3rem)] h-140 bg-base-100 rounded-2xl shadow-2xl flex flex-col border border-base-200 z-50">
           {/* Header */}
           <div className="flex items-center justify-between px-4 py-3 border-b border-base-200 bg-primary rounded-t-2xl">
             <div>

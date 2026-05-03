@@ -106,7 +106,11 @@ export default function ApplicationCard({ application, isOverlay = false }: Prop
                 <h3 className="font-semibold text-sm">Cover Letter</h3>
                 <p className="text-xs text-base-content/50 mt-0.5">{application.company} — {application.role}</p>
               </div>
-              <button onClick={() => setShowCoverLetter(false)} className="btn btn-ghost btn-xs btn-circle">✕</button>
+              <button onClick={() => setShowCoverLetter(false)} className="btn btn-ghost btn-xs btn-circle">
+                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
             </div>
             <div className="p-5">
               <CoverLetterGenerator

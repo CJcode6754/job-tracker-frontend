@@ -6,8 +6,8 @@ interface ApplicationStore {
   applications: JobApplication[];
   loading: boolean;
   fetchApplications: (params?: Record<string, string>) => Promise<void>;
-  addApplication: (data: Partial<JobApplication>) => Promise<void>;
-  updateApplication: (id: number, updates: Partial<JobApplication>) => Promise<void>;
+  addApplication: (data: Record<string, unknown>) => Promise<void>;
+  updateApplication: (id: number, updates: Record<string, unknown>) => Promise<void>;
   deleteApplication: (id: number) => Promise<void>;
   moveApplication: (id: number, status: ApplicationStatus) => void;
 }
