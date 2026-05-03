@@ -32,6 +32,7 @@ export interface InterviewRound {
 
 export interface JobApplication {
   id: number;
+  hash_id: string;
   user_id: number;
   company: string;
   role: string;

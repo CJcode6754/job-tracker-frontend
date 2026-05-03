@@ -15,13 +15,14 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-// Auto-logout on 401 (expired or invalid token)
+// Auto-logout on 401
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
+    const status = error.response?.status;
+    if (status === 401) {
       sessionStorage.removeItem('token');
-      // Redirect to login without using the router (works outside React tree)
+      sessionStorage.removeItem('token_expires_at');
       if (window.location.pathname !== '/login') {
         window.location.href = '/login';
       }

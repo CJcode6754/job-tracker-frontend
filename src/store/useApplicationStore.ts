@@ -28,29 +28,34 @@ export const useApplicationStore = create<ApplicationStore>((set, get) => ({
   },
 
   updateApplication: async (id, updates) => {
-    const { data } = await api.put(`/applications/${id}`, updates);
+    const app = get().applications.find((a) => a.id === id);
+    if (!app) return;
+    const { data } = await api.put(`/applications/${app.hash_id}`, updates);
     set((state) => ({
       applications: state.applications.map((a) => (a.id === id ? data : a)),
     }));
   },
 
   deleteApplication: async (id) => {
-    await api.delete(`/applications/${id}`);
+    const app = get().applications.find((a) => a.id === id);
+    if (!app) return;
+    await api.delete(`/applications/${app.hash_id}`);
     set((state) => ({
       applications: state.applications.filter((a) => a.id !== id),
     }));
   },
 
   moveApplication: (id, status) => {
-    // Optimistic update — move card instantly in UI
+    const previous = get().applications;
+    const app = previous.find((a) => a.id === id);
+    if (!app) return;
     set((state) => ({
       applications: state.applications.map((a) =>
         a.id === id ? { ...a, status } : a
       ),
     }));
-    // Sync with API in background, revert on failure
-    api.put(`/applications/${id}`, { status }).catch(() => {
-      get().fetchApplications();
+    api.put(`/applications/${app.hash_id}`, { status }).catch(() => {
+      set({ applications: previous });
     });
   },
 }));

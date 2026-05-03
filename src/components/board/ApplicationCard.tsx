@@ -4,10 +4,10 @@ import { useState } from 'react';
 import type { JobApplication } from '@/types';
 import CoverLetterGenerator from '@/components/ai/CoverLetterGenerator';
 
-const PRIORITY_BADGE: Record<string, string> = {
-  high:   'badge-error',
-  medium: 'badge-warning',
-  low:    'badge-success',
+const PRIORITY_DOT: Record<string, string> = {
+  high:   'bg-error',
+  medium: 'bg-warning',
+  low:    'bg-success',
 };
 
 interface Props {
@@ -15,74 +15,52 @@ interface Props {
   isOverlay?: boolean;
 }
 
-function CardContent({ application, onCoverLetter }: { application: JobApplication; onCoverLetter: (e: React.MouseEvent) => void }) {
+function CardContent({ application, onCoverLetter }: {
+  application: JobApplication;
+  onCoverLetter: (e: React.MouseEvent) => void;
+}) {
   const rounds = application.interview_rounds_count ?? application.interview_rounds?.length ?? 0;
-
   const salary = application.salary_min
     ? `${application.salary_currency ?? '$'}${(application.salary_min / 1000).toFixed(0)}k${application.salary_max ? `–${(application.salary_max / 1000).toFixed(0)}k` : '+'}`
     : null;
 
-  const WORK_ICONS: Record<string, string> = { remote: '🌐', onsite: '🏢', hybrid: '🔀' };
-
   return (
-    <>
-      <p className="text-sm font-semibold leading-tight">{application.company}</p>
-      <p className="text-xs text-base-content/50 mt-0.5 truncate">{application.role}</p>
-
-      {/* Tags row: work type, employment type, location */}
-      {(application.work_type || application.employment_type || application.location) && (
-        <div className="flex flex-wrap gap-1 mt-1.5">
-          {application.work_type && (
-            <span className="badge badge-xs badge-ghost gap-0.5">
-              {WORK_ICONS[application.work_type]} {application.work_type}
-            </span>
-          )}
-          {application.employment_type && (
-            <span className="badge badge-xs badge-ghost">
-              {application.employment_type.replace(/_/g, ' ')}
-            </span>
-          )}
-          {application.location && (
-            <span className="badge badge-xs badge-ghost truncate max-w-[100px]">
-              📍 {application.location}
-            </span>
-          )}
-        </div>
-      )}
-      <div className="flex items-center justify-between mt-2.5">
-        <span className={`badge badge-sm ${PRIORITY_BADGE[application.priority] ?? 'badge-ghost'}`}>
-          {application.priority}
-        </span>
-        <div className="flex items-center gap-2">
-          {salary && (
-            <span className="text-xs text-success font-medium">{salary}</span>
-          )}
-          {application.applied_date && (
-            <span className="text-xs text-base-content/40">{application.applied_date}</span>
-          )}
+    <div className="space-y-2">
+      {/* Top row: priority dot + company */}
+      <div className="flex items-start gap-2">
+        <span className={`w-1.5 h-1.5 rounded-full mt-1.5 shrink-0 ${PRIORITY_DOT[application.priority] ?? 'bg-base-content/30'}`} />
+        <div className="min-w-0 flex-1">
+          <p className="text-sm font-semibold leading-tight truncate">{application.company}</p>
+          <p className="text-xs text-base-content/50 truncate mt-0.5">{application.role}</p>
         </div>
       </div>
-      <div className="flex items-center justify-between mt-2 pt-2 border-t border-base-200">
-        {rounds > 0 ? (
-          <div className="flex items-center gap-1">
-            <svg className="w-3 h-3 text-base-content/40" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-            </svg>
-            <span className="text-xs text-base-content/40">{rounds} interview{rounds > 1 ? 's' : ''}</span>
-          </div>
-        ) : <span />}
+
+      {/* Footer row */}
+      <div className="flex items-center justify-between pt-1.5 border-t border-base-200/70">
+        <div className="flex items-center gap-2 min-w-0">
+          {application.work_type && (
+            <span className="text-xs text-base-content/40 capitalize">{application.work_type}</span>
+          )}
+          {salary && (
+            <span className="text-xs text-success font-medium truncate">{salary}</span>
+          )}
+          {rounds > 0 && (
+            <span className="text-xs text-base-content/40">{rounds} round{rounds > 1 ? 's' : ''}</span>
+          )}
+        </div>
+
+        {/* Cover letter button */}
         <button
           onClick={onCoverLetter}
-          className="btn btn-ghost btn-xs gap-1 text-base-content/40 hover:text-primary hover:bg-primary/10"
+          className="btn btn-ghost btn-xs btn-circle text-base-content/30 hover:text-primary hover:bg-primary/10"
           title="Generate cover letter"
         >
           <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
           </svg>
-          Cover letter
         </button>
       </div>
-    </>
+    </div>
   );
 }
 
@@ -98,7 +76,7 @@ export default function ApplicationCard({ application, isOverlay = false }: Prop
 
   if (isOverlay) {
     return (
-      <div className="card bg-base-100 shadow-xl border border-primary w-60 p-3 rotate-2 scale-105 cursor-grabbing">
+      <div className="bg-base-100 shadow-2xl border-2 border-primary rounded-xl w-56 p-3 rotate-2 scale-105 cursor-grabbing">
         <CardContent application={application} onCoverLetter={() => {}} />
       </div>
     );
@@ -110,9 +88,11 @@ export default function ApplicationCard({ application, isOverlay = false }: Prop
         ref={setNodeRef}
         {...attributes}
         {...listeners}
-        onClick={() => { if (!isDragging) navigate(`/applications/${application.id}`); }}
-        className={`card bg-base-100 border border-base-200 p-3 cursor-grab select-none touch-none transition-all ${
-          isDragging ? 'opacity-40 border-primary' : 'hover:shadow-md hover:-translate-y-0.5'
+        onClick={() => { if (!isDragging) navigate(`/applications/${application.hash_id}`); }}
+        className={`bg-base-100 border border-base-200 rounded-xl p-3 cursor-grab select-none touch-none transition-all ${
+          isDragging
+            ? 'opacity-30 scale-95'
+            : 'hover:border-base-300 hover:shadow-sm active:scale-[0.98]'
         }`}
       >
         <CardContent application={application} onCoverLetter={handleCoverLetter} />
