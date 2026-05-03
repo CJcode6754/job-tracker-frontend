@@ -24,6 +24,7 @@ function clearRefreshTimer() {
 
 interface AuthStore {
   user: AuthUser | null;
+  token: string | null;
   loading: boolean;
   fetchUser: () => Promise<void>;
   login: (email: string, password: string) => Promise<void>;
@@ -34,13 +35,17 @@ interface AuthStore {
 
 export const useAuthStore = create<AuthStore>((set, get) => ({
   user: null,
+  token: localStorage.getItem('auth_token'),
   loading: true,
 
   fetchUser: async () => {
     set({ loading: true });
     try {
+      const token = localStorage.getItem('auth_token');
+      if (token) {
+        api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+      }
       const { data } = await api.get('/me');
-      // data should be the user object or null
       if (data && typeof data === 'object' && data.id) {
         set({ user: data, loading: false });
         scheduleRefresh(() => get().refreshToken());
@@ -54,8 +59,13 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
 
   login: async (email, password) => {
     const { data } = await api.post('/login', { email, password });
-    set({ user: data.user });
-    scheduleRefresh(() => get().refreshToken());
+    const token = data.plainTextToken || data.token;
+    if (token) {
+      localStorage.setItem('auth_token', token);
+      api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+      set({ user: data.user, token });
+      scheduleRefresh(() => get().refreshToken());
+    }
   },
 
   register: async (name, email, password, passwordConfirmation) => {
@@ -63,24 +73,47 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
       name, email, password,
       password_confirmation: passwordConfirmation,
     });
-    set({ user: data.user });
-    scheduleRefresh(() => get().refreshToken());
+    const token = data.plainTextToken || data.token;
+    if (token) {
+      localStorage.setItem('auth_token', token);
+      api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+      set({ user: data.user, token });
+      scheduleRefresh(() => get().refreshToken());
+    }
   },
 
   refreshToken: async () => {
-    await api.post('/refresh');
+    const token = localStorage.getItem('auth_token');
+    if (token) {
+      api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+    }
+    const { data } = await api.post('/refresh');
+    if (data.plainTextToken) {
+      localStorage.setItem('auth_token', data.plainTextToken);
+      api.defaults.headers.common['Authorization'] = `Bearer ${data.plainTextToken}`;
+    }
     scheduleRefresh(() => get().refreshToken());
   },
 
   logout: async () => {
     clearRefreshTimer();
-    try { await api.post('/logout'); } finally {
-      set({ user: null });
+    try { 
+      const token = localStorage.getItem('auth_token');
+      if (token) {
+        api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+      }
+      await api.post('/logout');
+    } finally {
+      localStorage.removeItem('auth_token');
+      delete api.defaults.headers.common['Authorization'];
+      set({ user: null, token: null });
     }
   },
 }));
 
 export function clearAuth() {
   clearRefreshTimer();
-  useAuthStore.setState({ user: null, loading: false });
+  localStorage.removeItem('auth_token');
+  delete api.defaults.headers.common['Authorization'];
+  useAuthStore.setState({ user: null, loading: false, token: null });
 }
