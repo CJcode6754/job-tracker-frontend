@@ -3,9 +3,7 @@ import api from '@/lib/axios';
 import type { ChatMessage, JobTags } from '@/types';
 import { toast } from 'sonner';
 
-// -------------------------------------------------------
-// 💬 Chatbot Hook
-// -------------------------------------------------------
+// Chatbot Hook
 export function useAiChat() {
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
@@ -50,9 +48,7 @@ export function useAiChat() {
   return { messages, loading, sendMessage, clearHistory };
 }
 
-// -------------------------------------------------------
-// ✍️ Cover Letter Hook
-// -------------------------------------------------------
+// Cover Letter Hook
 export function useCoverLetter() {
   const [letter, setLetter]   = useState('');
   const [loading, setLoading] = useState(false);
@@ -79,9 +75,7 @@ export function useCoverLetter() {
   return { letter, loading, generate };
 }
 
-// -------------------------------------------------------
-// 📊 Insights Hook
-// -------------------------------------------------------
+// Insights Hook
 export function useAiInsights() {
   const [insights, setInsights] = useState('');
   const [loading, setLoading]   = useState(false);
@@ -102,9 +96,7 @@ export function useAiInsights() {
   return { insights, loading, fetchInsights };
 }
 
-// -------------------------------------------------------
-// 🏷️ Job Description Tagger Hook
-// -------------------------------------------------------
+// Job Description Tagger Hook
 export function useJobTagger() {
   const [tags, setTags]       = useState<JobTags | null>(null);
   const [loading, setLoading] = useState(false);

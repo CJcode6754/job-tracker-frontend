@@ -2,10 +2,18 @@ import { create } from 'zustand';
 import api from '@/lib/axios';
 import type { JobApplication, ApplicationStatus } from '@/types';
 
+interface PaginationMeta {
+  current_page: number;
+  last_page: number;
+  per_page: number;
+  total: number;
+}
+
 interface ApplicationStore {
   applications: JobApplication[];
   loading: boolean;
-  fetchApplications: (params?: Record<string, string>) => Promise<void>;
+  pagination: PaginationMeta | null;
+  fetchApplications: (params?: Record<string, string | number>) => Promise<void>;
   addApplication: (data: Record<string, unknown>) => Promise<void>;
   updateApplication: (id: number, updates: Record<string, unknown>) => Promise<void>;
   deleteApplication: (id: number) => Promise<void>;
@@ -15,11 +23,24 @@ interface ApplicationStore {
 export const useApplicationStore = create<ApplicationStore>((set, get) => ({
   applications: [],
   loading: false,
+  pagination: null,
 
   fetchApplications: async (params = {}) => {
     set({ loading: true });
-    const { data } = await api.get('/applications', { params });
-    set({ applications: data, loading: false });
+    try {
+      const { data } = await api.get('/applications', { 
+        params: {
+          per_page: 20,
+          ...params,
+        }
+      });
+      // Handle paginated response
+      const applications = data.data || data;
+      const pagination = data.meta || null;
+      set({ applications, pagination, loading: false });
+    } catch {
+      set({ loading: false });
+    }
   },
 
   addApplication: async (formData) => {

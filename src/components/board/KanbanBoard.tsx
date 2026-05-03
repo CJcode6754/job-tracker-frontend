@@ -37,7 +37,7 @@ function CardSkeleton() {
 
 function ColumnSkeleton({ count }: { count: number }) {
   return (
-    <div className="flex flex-col w-56 sm:w-64 shrink-0 h-full">
+    <div className="flex flex-col min-w-48 flex-1 h-full">
       <div className="flex items-center justify-between mb-2 px-0.5">
         <div className="flex items-center gap-2">
           <div className="skeleton w-2 h-2 rounded-full" />
@@ -85,7 +85,7 @@ export default function KanbanBoard() {
 
   if (loading) {
     return (
-      <div className="flex gap-3 p-4 h-full overflow-x-auto overflow-y-hidden pb-4">
+      <div className="flex gap-3 p-4 h-full overflow-x-auto overflow-y-hidden pb-4 min-w-0">
         {SKELETON_COUNTS.map((count, i) => (
           <ColumnSkeleton key={i} count={count} />
         ))}
@@ -95,7 +95,7 @@ export default function KanbanBoard() {
 
   return (
     <DndContext sensors={sensors} collisionDetection={rectIntersection} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
-      <div className="flex gap-3 p-4 h-full overflow-x-auto overflow-y-hidden pb-4">
+      <div className="flex gap-3 p-4 h-full overflow-x-auto overflow-y-hidden pb-4 min-w-0">
         {COLUMNS.map(({ id, label }) => (
           <KanbanColumn
             key={id}

@@ -23,7 +23,7 @@ export default function KanbanColumn({ status, label, applications, isDragging }
   const config = STATUS_CONFIG[status];
 
   return (
-    <div className="flex flex-col w-56 sm:w-64 shrink-0 h-full">
+    <div className="flex flex-col min-w-48 flex-1 h-full">
       {/* Header */}
       <div className="flex items-center justify-between mb-2 px-0.5">
         <div className="flex items-center gap-2">
