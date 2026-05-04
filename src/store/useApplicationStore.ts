@@ -18,9 +18,9 @@ interface ApplicationStore {
   setFilters: (filters: Record<string, string | number | boolean>) => void;
   loadMore: () => Promise<void>;
   addApplication: (data: Record<string, unknown>) => Promise<void>;
-  updateApplication: (id: number, updates: Record<string, unknown>) => Promise<void>;
-  deleteApplication: (id: number) => Promise<void>;
-  moveApplication: (id: number, status: ApplicationStatus) => void;
+  updateApplication: (id: string, updates: Record<string, unknown>) => Promise<void>;
+  deleteApplication: (id: string) => Promise<void>;
+  moveApplication: (id: string, status: ApplicationStatus) => void;
 }
 
 export const useApplicationStore = create<ApplicationStore>((set, get) => ({
@@ -69,22 +69,18 @@ export const useApplicationStore = create<ApplicationStore>((set, get) => ({
 
   addApplication: async (formData) => {
     const { data } = await api.post('/applications', formData);
-    set((state) => ({ applications: [data, ...state.applications] }));
+    set((state) => ({ applications: [data.data ?? data, ...state.applications] }));
   },
 
   updateApplication: async (id, updates) => {
-    const app = get().applications.find((a) => a.id === id);
-    if (!app) return;
-    const { data } = await api.put(`/applications/${app.hash_id}`, updates);
+    const { data } = await api.put(`/applications/${id}`, updates);
     set((state) => ({
-      applications: state.applications.map((a) => (a.id === id ? data : a)),
+      applications: state.applications.map((a) => (a.id === id ? (data.data ?? data) : a)),
     }));
   },
 
   deleteApplication: async (id) => {
-    const app = get().applications.find((a) => a.id === id);
-    if (!app) return;
-    await api.delete(`/applications/${app.hash_id}`);
+    await api.delete(`/applications/${id}`);
     set((state) => ({
       applications: state.applications.filter((a) => a.id !== id),
     }));
@@ -92,14 +88,12 @@ export const useApplicationStore = create<ApplicationStore>((set, get) => ({
 
   moveApplication: (id, status) => {
     const previous = get().applications;
-    const app = previous.find((a) => a.id === id);
-    if (!app) return;
     set((state) => ({
       applications: state.applications.map((a) =>
         a.id === id ? { ...a, status } : a
       ),
     }));
-    api.put(`/applications/${app.hash_id}`, { status }).catch(() => {
+    api.put(`/applications/${id}`, { status }).catch(() => {
       set({ applications: previous });
     });
   },

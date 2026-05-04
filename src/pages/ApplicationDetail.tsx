@@ -49,7 +49,7 @@ export default function ApplicationDetail() {
 
   useEffect(() => {
     api.get(`/applications/${id}`)
-      .then(({ data }) => setApplication(data))
+      .then(({ data }) => setApplication(data.data ?? data))
       .catch(() => setNotFound(true));
   }, [id]);
 

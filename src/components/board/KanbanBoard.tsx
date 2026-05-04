@@ -72,7 +72,7 @@ export default function KanbanBoard({
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 8 } }));
 
   const handleDragStart = (event: { active: { id: string | number } }) => {
-    setActiveCard(applications.find((a) => a.id === Number(event.active.id)) ?? null);
+    setActiveCard(applications.find((a) => a.id === String(event.active.id)) ?? null);
   };
 
   const handleDragEnd = (event: DragEndEvent) => {
@@ -82,10 +82,10 @@ export default function KanbanBoard({
     const overId = String(over.id);
     const targetStatus = VALID_STATUSES.includes(overId)
       ? overId
-      : applications.find((a) => a.id === Number(over.id))?.status;
-    const currentStatus = applications.find((a) => a.id === Number(active.id))?.status;
+      : applications.find((a) => a.id === String(over.id))?.status;
+    const currentStatus = applications.find((a) => a.id === String(active.id))?.status;
     if (targetStatus && targetStatus !== currentStatus) {
-      moveApplication(Number(active.id), targetStatus as ApplicationStatus);
+      moveApplication(String(active.id), targetStatus as ApplicationStatus);
     }
   };
 

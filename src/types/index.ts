@@ -14,7 +14,6 @@ export type EmploymentType = 'full_time' | 'part_time' | 'contract' | 'internshi
 
 export interface Contact {
     id: number;
-    application_id: number;
     name: string;
     email?: string;
     linkedIn?: string;
@@ -23,7 +22,6 @@ export interface Contact {
 
 export interface InterviewRound {
   id: number;
-  application_id: number;
   date: string;
   type: 'technical' | 'hr' | 'system_design' | 'take_home';
   interviewer_name?: string;
@@ -32,9 +30,8 @@ export interface InterviewRound {
 }
 
 export interface JobApplication {
-  id: number;
-  hash_id: string;
-  user_id: number;
+  id: string;
+  user_id?: never;
   company: string;
   role: string;
   job_url?: string;

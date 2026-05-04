@@ -90,7 +90,7 @@ export default function ApplicationCard({ application, isOverlay = false }: Prop
         ref={setNodeRef}
         {...attributes}
         {...listeners}
-        onClick={() => { if (!isDragging) navigate(`/applications/${application.hash_id}`); }}
+        onClick={() => { if (!isDragging) navigate(`/applications/${application.id}`); }}
         className={`bg-base-100 border border-base-content/5 rounded-2xl p-4 cursor-grab select-none touch-none transition-all duration-200 ${
           isDragging
             ? 'opacity-30 scale-95'
