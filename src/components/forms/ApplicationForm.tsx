@@ -29,7 +29,7 @@ type FormData = z.infer<typeof schema>;
 interface Props {
   onClose: () => void;
   defaultValues?: Partial<FormData>;
-  applicationId?: number;
+  applicationId?: string;
 }
 
 const STATUSES         = ['wishlist', 'applied', 'phone_screen', 'interview', 'offer', 'rejected', 'archived'] as const;

@@ -3,7 +3,7 @@ import StarterKit from '@tiptap/starter-kit';
 import { useApplicationStore } from '@/store/useApplicationStore';
 import { useRef } from 'react';
 
-export function NotesEditor({ applicationId, initialContent }: { applicationId: number; initialContent: string }) {
+export function NotesEditor({ applicationId, initialContent }: { applicationId: string; initialContent: string }) {
   const { updateApplication } = useApplicationStore();
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
